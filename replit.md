@@ -11,7 +11,9 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 ## 🚀 Key Features 
 
 - **AI-powered Category Mapping**
-  - Automatic category suggestions based on incoming seller catalog and ML logic.
+  - Automatic multiple category suggestions based on incoming seller catalog and ML logic.
+  - Support for multiple ML suggested categories per product mapping (2-3 suggestions).
+  - Individual dropdown controls for each suggested category for precise customization.
   - Confidently map products with real-time model confidence scores.
 
 - **Intuitive Product Variant Grouping**
