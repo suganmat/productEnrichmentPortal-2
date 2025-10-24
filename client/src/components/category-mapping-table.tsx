@@ -20,7 +20,7 @@ export function CategoryMappingTable() {
   });
 
   const updateMappingMutation = useMutation({
-    mutationFn: async ({ id, selectedCategory }: { id: number; selectedCategory: string }) => {
+    mutationFn: async ({ id, selectedCategory }: { id: number; selectedCategory: string[] }) => {
       const response = await apiRequest("PATCH", `/api/category-mappings/${id}`, { selectedCategory });
       return response.json();
     },
@@ -43,8 +43,10 @@ export function CategoryMappingTable() {
     },
   });
 
-  const handleCategoryChange = (id: number, selectedCategory: string) => {
-    updateMappingMutation.mutate({ id, selectedCategory });
+  const handleCategoryChange = (id: number, index: number, newValue: string, currentCategories: string[]) => {
+    const updatedCategories = [...currentCategories];
+    updatedCategories[index] = newValue;
+    updateMappingMutation.mutate({ id, selectedCategory: updatedCategories });
   };
 
   const handleApprove = () => {
@@ -107,24 +109,43 @@ export function CategoryMappingTable() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {mapping.mlSuggestedCategory}
+                    <div className="flex flex-wrap gap-2">
+                      {mapping.mlSuggestedCategory.map((category, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="secondary" 
+                          className="bg-green-100 text-green-800"
+                        >
+                          {category}
+                        </Badge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <Select
-                      value={mapping.selectedCategory}
-                      onValueChange={(value) => handleCategoryChange(mapping.id, value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoryOptions.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      {mapping.mlSuggestedCategory.map((mlCategory, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <span className="text-sm text-gray-600 min-w-[30px]">
+                            {index + 1}.
+                          </span>
+                          <Select
+                            value={mapping.selectedCategory[index] || mlCategory}
+                            onValueChange={(value) => handleCategoryChange(mapping.id, index, value, mapping.selectedCategory)}
+                          >
+                            <SelectTrigger className="w-full" data-testid={`select-category-${mapping.id}-${index}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categoryOptions.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ))}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -138,6 +159,7 @@ export function CategoryMappingTable() {
           onClick={() => setShowConfirmation(true)}
           className="bg-primary hover:bg-primary-dark"
           disabled={approveMutation.isPending}
+          data-testid="button-approve"
         >
           <Check className="w-4 h-4 mr-2" />
           Approve Changes

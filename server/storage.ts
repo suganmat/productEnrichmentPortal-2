@@ -6,7 +6,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   
   getCategoryMappings(): Promise<CategoryMapping[]>;
-  updateCategoryMapping(id: number, selectedCategory: string): Promise<CategoryMapping>;
+  updateCategoryMapping(id: number, selectedCategory: string[]): Promise<CategoryMapping>;
   approveCategoryMappings(): Promise<void>;
   
   getProductVariants(): Promise<ProductVariant[]>;
@@ -47,20 +47,20 @@ export class MemStorage implements IStorage {
       {
         serialNumber: 1,
         incomingSellerCategory: ["Mobile", "Mobile", "Smartphone", "Android"],
-        mlSuggestedCategory: "Mobile phones",
-        selectedCategory: "Mobile phones"
+        mlSuggestedCategory: ["Mobile phones", "Smartphones", "Mobile accessories"],
+        selectedCategory: ["Mobile phones", "Smartphones", "Mobile accessories"]
       },
       {
         serialNumber: 2,
         incomingSellerCategory: ["Home", "Gaming", "Accessories", "Cases"],
-        mlSuggestedCategory: "PlayStation accessories",
-        selectedCategory: "PlayStation accessories"
+        mlSuggestedCategory: ["PlayStation accessories", "Gaming accessories"],
+        selectedCategory: ["PlayStation accessories", "Gaming accessories"]
       },
       {
         serialNumber: 3,
         incomingSellerCategory: ["Electronics", "Audio", "Headphones"],
-        mlSuggestedCategory: "Audio equipment",
-        selectedCategory: "Audio equipment"
+        mlSuggestedCategory: ["Audio equipment", "Headphones", "Wireless headphones"],
+        selectedCategory: ["Audio equipment", "Headphones", "Wireless headphones"]
       }
     ];
 
@@ -182,7 +182,7 @@ export class MemStorage implements IStorage {
     return Array.from(this.categoryMappings.values());
   }
 
-  async updateCategoryMapping(id: number, selectedCategory: string): Promise<CategoryMapping> {
+  async updateCategoryMapping(id: number, selectedCategory: string[]): Promise<CategoryMapping> {
     const mapping = this.categoryMappings.get(id);
     if (!mapping) {
       throw new Error("Category mapping not found");

@@ -7,8 +7,8 @@ export const categoryMappings = pgTable("category_mappings", {
   id: serial("id").primaryKey(),
   serialNumber: integer("serial_number").notNull(),
   incomingSellerCategory: json("incoming_seller_category").$type<string[]>().notNull(),
-  mlSuggestedCategory: text("ml_suggested_category").notNull(),
-  selectedCategory: text("selected_category").notNull(),
+  mlSuggestedCategory: json("ml_suggested_category").$type<string[]>().notNull(),
+  selectedCategory: json("selected_category").$type<string[]>().notNull(),
 });
 
 export const productVariants = pgTable("product_variants", {
