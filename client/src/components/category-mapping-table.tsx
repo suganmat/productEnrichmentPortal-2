@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronRight, X, Plus } from "lucide-react";
 import { ConfirmationModal } from "@/components/confirmation-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -49,6 +49,16 @@ export function CategoryMappingTable() {
     updateMappingMutation.mutate({ id, selectedCategory: updatedCategories });
   };
 
+  const handleDeleteCategory = (id: number, index: number, currentCategories: string[]) => {
+    const updatedCategories = currentCategories.filter((_, i) => i !== index);
+    updateMappingMutation.mutate({ id, selectedCategory: updatedCategories });
+  };
+
+  const handleAddCategory = (id: number, currentCategories: string[]) => {
+    const updatedCategories = [...currentCategories, "Mobile phones"];
+    updateMappingMutation.mutate({ id, selectedCategory: updatedCategories });
+  };
+
   const handleApprove = () => {
     approveMutation.mutate();
   };
@@ -83,6 +93,7 @@ export function CategoryMappingTable() {
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="w-20">Serial No.</TableHead>
+                <TableHead className="w-64">Product Name</TableHead>
                 <TableHead>Incoming Seller Category</TableHead>
                 <TableHead>ML Suggested EE Category</TableHead>
                 <TableHead>Change the ML Suggested Category</TableHead>
@@ -93,6 +104,9 @@ export function CategoryMappingTable() {
                 <TableRow key={mapping.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">
                     {mapping.serialNumber}
+                  </TableCell>
+                  <TableCell className="font-medium text-gray-900">
+                    {mapping.productName}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 items-center">
@@ -123,16 +137,16 @@ export function CategoryMappingTable() {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-2">
-                      {mapping.mlSuggestedCategory.map((mlCategory, index) => (
+                      {mapping.selectedCategory.map((selectedCat, index) => (
                         <div key={index} className="flex items-center gap-2">
                           <span className="text-sm text-gray-600 min-w-[30px]">
                             {index + 1}.
                           </span>
                           <Select
-                            value={mapping.selectedCategory[index] || mlCategory}
+                            value={selectedCat}
                             onValueChange={(value) => handleCategoryChange(mapping.id, index, value, mapping.selectedCategory)}
                           >
-                            <SelectTrigger className="w-full" data-testid={`select-category-${mapping.id}-${index}`}>
+                            <SelectTrigger className="flex-1" data-testid={`select-category-${mapping.id}-${index}`}>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -143,8 +157,27 @@ export function CategoryMappingTable() {
                               ))}
                             </SelectContent>
                           </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteCategory(mapping.id, index, mapping.selectedCategory)}
+                            className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
+                            data-testid={`button-delete-category-${mapping.id}-${index}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </div>
                       ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAddCategory(mapping.id, mapping.selectedCategory)}
+                        className="w-full mt-2 border-dashed hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                        data-testid={`button-add-category-${mapping.id}`}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Category
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

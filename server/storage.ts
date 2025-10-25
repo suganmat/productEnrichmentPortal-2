@@ -46,18 +46,21 @@ export class MemStorage implements IStorage {
     const categoryData: Omit<CategoryMapping, 'id'>[] = [
       {
         serialNumber: 1,
+        productName: "Samsung Galaxy S24 Ultra 256GB",
         incomingSellerCategory: ["Mobile", "Mobile", "Smartphone", "Android"],
         mlSuggestedCategory: ["Mobile phones", "Smartphones", "Mobile accessories"],
         selectedCategory: ["Mobile phones", "Smartphones", "Mobile accessories"]
       },
       {
         serialNumber: 2,
+        productName: "PlayStation 5 DualSense Controller",
         incomingSellerCategory: ["Home", "Gaming", "Accessories", "Cases"],
         mlSuggestedCategory: ["PlayStation accessories", "Gaming accessories"],
         selectedCategory: ["PlayStation accessories", "Gaming accessories"]
       },
       {
         serialNumber: 3,
+        productName: "Sony WH-1000XM5 Wireless Headphones",
         incomingSellerCategory: ["Electronics", "Audio", "Headphones"],
         mlSuggestedCategory: ["Audio equipment", "Headphones", "Wireless headphones"],
         selectedCategory: ["Audio equipment", "Headphones", "Wireless headphones"]

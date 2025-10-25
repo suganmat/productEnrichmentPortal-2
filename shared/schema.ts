@@ -6,6 +6,7 @@ import { z } from "zod";
 export const categoryMappings = pgTable("category_mappings", {
   id: serial("id").primaryKey(),
   serialNumber: integer("serial_number").notNull(),
+  productName: text("product_name").notNull(),
   incomingSellerCategory: json("incoming_seller_category").$type<string[]>().notNull(),
   mlSuggestedCategory: json("ml_suggested_category").$type<string[]>().notNull(),
   selectedCategory: json("selected_category").$type<string[]>().notNull(),
