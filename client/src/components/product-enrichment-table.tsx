@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, Move } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, Move, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import type { ProductSKU } from "@shared/schema";
+import { UploadDialog } from "@/components/upload-dialog";
 
 interface ProductSKUResponse {
   data: ProductSKU[];
@@ -33,6 +34,8 @@ export function ProductEnrichmentTable() {
   const [activeTab, setActiveTab] = useState('specs');
   const [chatMessages, setChatMessages] = useState<{id: number, text: string, sender: 'user' | 'system'}[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadedFilesByProduct, setUploadedFilesByProduct] = useState<Map<string, {id: number, name: string, type: string, source: 'local' | 'onedrive' | 'url', url?: string, uploadedAt: Date}[]>>(new Map());
 
   const { data, isLoading, error } = useQuery<ProductSKUResponse>({
     queryKey: ['/api/product-skus', currentPage, pageSize, sortBy, sortOrder, filters],
@@ -107,6 +110,39 @@ export function ProductEnrichmentTable() {
       }, 1000);
     }
   };
+
+  const handleFileUpload = (file: { name: string; type: string; source: 'local' | 'onedrive' | 'url'; url?: string }) => {
+    if (!selectedProduct) return;
+    
+    const newFile = {
+      id: Date.now(),
+      ...file,
+      uploadedAt: new Date()
+    };
+    
+    setUploadedFilesByProduct(prev => {
+      const newMap = new Map(prev);
+      const productFiles = newMap.get(selectedProduct.mpn) || [];
+      newMap.set(selectedProduct.mpn, [...productFiles, newFile]);
+      return newMap;
+    });
+  };
+
+  const handleDeleteFile = (fileId: number) => {
+    if (!selectedProduct) return;
+    
+    setUploadedFilesByProduct(prev => {
+      const newMap = new Map(prev);
+      const productFiles = newMap.get(selectedProduct.mpn) || [];
+      newMap.set(selectedProduct.mpn, productFiles.filter(file => file.id !== fileId));
+      return newMap;
+    });
+  };
+
+  // Get uploaded files for current product
+  const currentProductFiles = selectedProduct 
+    ? (uploadedFilesByProduct.get(selectedProduct.mpn) || [])
+    : [];
 
   if (error) {
     return (
@@ -187,11 +223,51 @@ export function ProductEnrichmentTable() {
                 <Button 
                   className="w-full" 
                   size="lg"
+                  onClick={() => setUploadDialogOpen(true)}
                   data-testid="upload-files"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Files
                 </Button>
+                
+                {/* Uploaded Files List */}
+                {currentProductFiles.length > 0 && (
+                  <div className="border rounded-lg">
+                    <div className="p-3 border-b bg-gray-50 font-medium text-sm" data-testid="uploaded-files-header">
+                      Uploaded Files ({currentProductFiles.length})
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {currentProductFiles.map((file) => (
+                        <div 
+                          key={file.id} 
+                          className="p-3 border-b last:border-b-0 hover:bg-gray-50 flex items-center justify-between"
+                          data-testid={`uploaded-file-${file.id}`}
+                        >
+                          <div className="flex items-center space-x-2 flex-1 min-w-0">
+                            <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {file.source === 'url' ? 'URL' : file.source === 'onedrive' ? 'OneDrive' : 'Local'}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteFile(file.id)}
+                            className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 flex-shrink-0"
+                            data-testid={`delete-file-${file.id}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {/* Chat Feature */}
                 <div className="flex-1 flex flex-col border rounded-lg">
@@ -237,6 +313,13 @@ export function ProductEnrichmentTable() {
                 </div>
               </div>
             </div>
+            
+            {/* Upload Dialog */}
+            <UploadDialog
+              open={uploadDialogOpen}
+              onClose={() => setUploadDialogOpen(false)}
+              onUpload={handleFileUpload}
+            />
           </div>
         </CardContent>
       </Card>
