@@ -14,6 +14,7 @@ import type { ProductSKU } from "@shared/schema";
 import { UploadDialog } from "@/components/upload-dialog";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductSKUResponse {
   data: ProductSKU[];
@@ -647,17 +648,25 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
   drag(drop(ref));
 
   return (
-    <TableRow 
+    <motion.tr
       ref={ref}
+      layout
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: isDragging ? 0.5 : 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{
+        layout: { duration: 0.2, ease: "easeInOut" },
+        opacity: { duration: 0.15 }
+      }}
       data-testid={`spec-row-${index}`}
-      className={`${isDragging ? 'opacity-50' : ''} ${isOver ? 'bg-blue-50' : ''}`}
+      className={`border-b transition-colors ${isOver ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
     >
       <TableCell>
         <div 
-          className="cursor-move p-1 hover:bg-gray-100 rounded"
+          className="cursor-move p-1 hover:bg-gray-100 rounded transition-colors"
           data-testid={`move-spec-${index}`}
         >
-          <GripVertical className="w-4 h-4 text-gray-400" />
+          <GripVertical className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
         </div>
       </TableCell>
       <TableCell>
@@ -690,7 +699,7 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
           <X className="w-4 h-4" />
         </Button>
       </TableCell>
-    </TableRow>
+    </motion.tr>
   );
 }
 
@@ -768,16 +777,18 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {specs.map((spec, index) => (
-                <DraggableSpecRow
-                  key={index}
-                  spec={spec}
-                  index={index}
-                  moveRow={moveRow}
-                  updateSpec={updateSpec}
-                  removeRow={removeRow}
-                />
-              ))}
+              <AnimatePresence>
+                {specs.map((spec, index) => (
+                  <DraggableSpecRow
+                    key={`${spec.key}-${index}`}
+                    spec={spec}
+                    index={index}
+                    moveRow={moveRow}
+                    updateSpec={updateSpec}
+                    removeRow={removeRow}
+                  />
+                ))}
+              </AnimatePresence>
             </TableBody>
           </Table>
         </div>
