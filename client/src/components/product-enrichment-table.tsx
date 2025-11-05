@@ -14,7 +14,7 @@ import type { ProductSKU } from "@shared/schema";
 import { UploadDialog } from "@/components/upload-dialog";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface ProductSKUResponse {
   data: ProductSKU[];
@@ -651,15 +651,19 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
     <motion.tr
       ref={ref}
       layout
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: isDragging ? 0.5 : 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      animate={{ opacity: isDragging ? 0.5 : 1 }}
       transition={{
-        layout: { duration: 0.2, ease: "easeInOut" },
-        opacity: { duration: 0.15 }
+        layout: { 
+          type: "spring",
+          stiffness: 500,
+          damping: 35,
+          mass: 0.5
+        },
+        opacity: { duration: 0.1 }
       }}
       data-testid={`spec-row-${index}`}
-      className={`border-b transition-colors ${isOver ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+      className={`border-b ${isOver ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+      style={{ willChange: 'transform' }}
     >
       <TableCell>
         <div 
@@ -778,18 +782,16 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <AnimatePresence>
-                {specs.map((spec, index) => (
-                  <DraggableSpecRow
-                    key={spec.id}
-                    spec={spec}
-                    index={index}
-                    moveRow={moveRow}
-                    updateSpec={updateSpec}
-                    removeRow={removeRow}
-                  />
-                ))}
-              </AnimatePresence>
+              {specs.map((spec, index) => (
+                <DraggableSpecRow
+                  key={spec.id}
+                  spec={spec}
+                  index={index}
+                  moveRow={moveRow}
+                  updateSpec={updateSpec}
+                  removeRow={removeRow}
+                />
+              ))}
             </TableBody>
           </Table>
         </div>
