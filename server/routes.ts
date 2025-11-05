@@ -117,6 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         brand: req.query.brand as string,
         category: req.query.category as string,
         status: req.query.status as string,
+        availableOnBrandWebsite: req.query.availableOnBrandWebsite as string,
       };
 
       const result = await storage.getProductSKUs(page, limit, sortBy, sortOrder, filters);

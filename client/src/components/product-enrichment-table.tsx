@@ -27,7 +27,8 @@ export function ProductEnrichmentTable() {
     seller: 'all',
     brand: 'all',
     category: 'all',
-    status: 'all'
+    status: 'all',
+    availableOnBrandWebsite: 'all'
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<ProductSKU | null>(null);
@@ -49,6 +50,7 @@ export function ProductEnrichmentTable() {
         ...(filters.brand && filters.brand !== 'all' && { brand: filters.brand }),
         ...(filters.category && filters.category !== 'all' && { category: filters.category }),
         ...(filters.status && filters.status !== 'all' && { status: filters.status }),
+        ...(filters.availableOnBrandWebsite && filters.availableOnBrandWebsite !== 'all' && { availableOnBrandWebsite: filters.availableOnBrandWebsite }),
       });
       const response = await fetch(`/api/product-skus?${params}`);
       if (!response.ok) throw new Error('Failed to fetch product SKUs');
@@ -71,7 +73,7 @@ export function ProductEnrichmentTable() {
   };
 
   const clearFilters = () => {
-    setFilters({ seller: 'all', brand: 'all', category: 'all', status: 'all' });
+    setFilters({ seller: 'all', brand: 'all', category: 'all', status: 'all', availableOnBrandWebsite: 'all' });
     setSearchQuery('');
     setCurrentPage(1);
   };
@@ -409,6 +411,17 @@ export function ProductEnrichmentTable() {
                 <SelectItem value="Reviewed">Reviewed</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={filters.availableOnBrandWebsite} onValueChange={(value) => handleFilterChange('availableOnBrandWebsite', value === "all" ? "" : value)}>
+              <SelectTrigger data-testid="filter-available-on-brand-website">
+                <SelectValue placeholder="Available on Website" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -464,18 +477,29 @@ export function ProductEnrichmentTable() {
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </TableHead>
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => handleSort('availableOnBrandWebsite')}
+                    className="h-auto p-0 font-semibold"
+                    data-testid="sort-available-on-brand-website"
+                  >
+                    Available on Brand Website
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : data?.data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     No products found
                   </TableCell>
                 </TableRow>
@@ -511,6 +535,16 @@ export function ProductEnrichmentTable() {
                         data-testid={`status-${product.id}`}
                       >
                         {product.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell data-testid={`available-on-brand-website-${product.id}`}>
+                      <Badge 
+                        className={product.availableOnBrandWebsite 
+                          ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                        }
+                      >
+                        {product.availableOnBrandWebsite ? 'Yes' : 'No'}
                       </Badge>
                     </TableCell>
                   </TableRow>

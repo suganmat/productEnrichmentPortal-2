@@ -15,7 +15,7 @@ export interface IStorage {
   approveProductGroupings(): Promise<void>;
   
   // Product enrichment operations
-  getProductSKUs(page?: number, limit?: number, sortBy?: string, sortOrder?: 'asc' | 'desc', filters?: { seller?: string; brand?: string; category?: string; status?: string }): Promise<{ data: ProductSKU[], total: number }>;
+  getProductSKUs(page?: number, limit?: number, sortBy?: string, sortOrder?: 'asc' | 'desc', filters?: { seller?: string; brand?: string; category?: string; status?: string; availableOnBrandWebsite?: string }): Promise<{ data: ProductSKU[], total: number }>;
   createProductSKU(productSKU: InsertProductSKU): Promise<ProductSKU>;
   updateProductSKU(id: number, updates: Partial<ProductSKU>): Promise<ProductSKU>;
 }
@@ -270,7 +270,7 @@ export class MemStorage implements IStorage {
     limit: number = 10,
     sortBy: string = 'dateUploaded',
     sortOrder: 'asc' | 'desc' = 'desc',
-    filters?: { seller?: string; brand?: string; category?: string; status?: string }
+    filters?: { seller?: string; brand?: string; category?: string; status?: string; availableOnBrandWebsite?: string }
   ): Promise<{ data: ProductSKU[], total: number }> {
     let skus = Array.from(this.productSKUs.values());
     
@@ -287,6 +287,10 @@ export class MemStorage implements IStorage {
       }
       if (filters.status) {
         skus = skus.filter(sku => sku.status === filters.status);
+      }
+      if (filters.availableOnBrandWebsite) {
+        const filterValue = filters.availableOnBrandWebsite === 'true';
+        skus = skus.filter(sku => sku.availableOnBrandWebsite === filterValue);
       }
     }
 
@@ -322,6 +326,7 @@ export class MemStorage implements IStorage {
       id: this.currentSKUId++,
       dateUploaded: new Date(),
       status: productSKUData.status || "Saved",
+      availableOnBrandWebsite: productSKUData.availableOnBrandWebsite ?? false,
     };
     this.productSKUs.set(productSKU.id, productSKU);
     return productSKU;
