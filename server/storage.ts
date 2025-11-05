@@ -113,7 +113,8 @@ export class MemStorage implements IStorage {
         seller: "Westcoast",
         brand: "Samsung",
         category: "Mobile phones",
-        status: "To be reviewed"
+        status: "To be reviewed",
+        availableOnBrandWebsite: true
       },
       {
         mpn: "MPN-002",
@@ -121,7 +122,8 @@ export class MemStorage implements IStorage {
         seller: "Exertis",
         brand: "Sony",
         category: "Audio equipment",
-        status: "Under review"
+        status: "Under review",
+        availableOnBrandWebsite: true
       },
       {
         mpn: "MPN-003",
@@ -129,7 +131,8 @@ export class MemStorage implements IStorage {
         seller: "TechTrade",
         brand: "Dell",
         category: "Computers",
-        status: "Reviewed"
+        status: "Reviewed",
+        availableOnBrandWebsite: false
       },
       {
         mpn: "27US550-W.AEK",
@@ -137,7 +140,8 @@ export class MemStorage implements IStorage {
         seller: "Westcoast",
         brand: "LG",
         category: "Monitors",
-        status: "To be reviewed"
+        status: "To be reviewed",
+        availableOnBrandWebsite: true
       },
       {
         mpn: "MPN-005",
@@ -145,7 +149,8 @@ export class MemStorage implements IStorage {
         seller: "Exertis",
         brand: "Apple",
         category: "Mobile phones",
-        status: "Under review"
+        status: "Under review",
+        availableOnBrandWebsite: true
       },
       {
         mpn: "MPN-006",
@@ -153,7 +158,8 @@ export class MemStorage implements IStorage {
         seller: "TechTrade",
         brand: "Apple",
         category: "Computers",
-        status: "Reviewed"
+        status: "Reviewed",
+        availableOnBrandWebsite: false
       }
     ];
 
