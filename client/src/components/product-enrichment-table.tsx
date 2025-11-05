@@ -606,7 +606,7 @@ export function ProductEnrichmentTable() {
 
 // Draggable Spec Row Component
 interface DraggableSpecRowProps {
-  spec: { key: string; value: string; editable: boolean };
+  spec: { id: string; key: string; value: string; editable: boolean };
   index: number;
   moveRow: (fromIndex: number, toIndex: number) => void;
   updateSpec: (index: number, field: 'key' | 'value', value: string) => void;
@@ -706,21 +706,22 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
 // Product Specs Section Component
 function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const [specs, setSpecs] = useState([
-    { key: 'Brand', value: product.brand, editable: false },
-    { key: 'Type', value: 'LED', editable: true },
-    { key: 'Screen Size', value: '27 inch', editable: true },
-    { key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true },
-    { key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true },
-    { key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true },
-    { key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true },
-    { key: 'Weight', value: '6.8 kg', editable: true },
-    { key: 'MPN', value: product.mpn, editable: false }
+    { id: '1', key: 'Brand', value: product.brand, editable: false },
+    { id: '2', key: 'Type', value: 'LED', editable: true },
+    { id: '3', key: 'Screen Size', value: '27 inch', editable: true },
+    { id: '4', key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true },
+    { id: '5', key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true },
+    { id: '6', key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true },
+    { id: '7', key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true },
+    { id: '8', key: 'Weight', value: '6.8 kg', editable: true },
+    { id: '9', key: 'MPN', value: product.mpn, editable: false }
   ]);
   const [history, setHistory] = useState<typeof specs[]>([]);
 
   const addRow = () => {
     setHistory(prev => [...prev, [...specs]]);
-    setSpecs(prev => [...prev, { key: '', value: '', editable: true }]);
+    const newId = `spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    setSpecs(prev => [...prev, { id: newId, key: '', value: '', editable: true }]);
   };
 
   const removeRow = (index: number) => {
@@ -780,7 +781,7 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
               <AnimatePresence>
                 {specs.map((spec, index) => (
                   <DraggableSpecRow
-                    key={`${spec.key}-${index}`}
+                    key={spec.id}
                     spec={spec}
                     index={index}
                     moveRow={moveRow}
