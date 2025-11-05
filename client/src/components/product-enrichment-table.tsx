@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, Move, FileText, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, GripVertical, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import type { ProductSKU } from "@shared/schema";
 import { UploadDialog } from "@/components/upload-dialog";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 interface ProductSKUResponse {
   data: ProductSKU[];
@@ -601,6 +603,97 @@ export function ProductEnrichmentTable() {
   );
 }
 
+// Draggable Spec Row Component
+interface DraggableSpecRowProps {
+  spec: { key: string; value: string; editable: boolean };
+  index: number;
+  moveRow: (fromIndex: number, toIndex: number) => void;
+  updateSpec: (index: number, field: 'key' | 'value', value: string) => void;
+  removeRow: (index: number) => void;
+}
+
+function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: DraggableSpecRowProps) {
+  const ref = useRef<HTMLTableRowElement>(null);
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'SPEC_ROW',
+    item: { index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [{ isOver }, drop] = useDrop({
+    accept: 'SPEC_ROW',
+    hover: (item: { index: number }) => {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      moveRow(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  drag(drop(ref));
+
+  return (
+    <TableRow 
+      ref={ref}
+      data-testid={`spec-row-${index}`}
+      className={`${isDragging ? 'opacity-50' : ''} ${isOver ? 'bg-blue-50' : ''}`}
+    >
+      <TableCell>
+        <div 
+          className="cursor-move p-1 hover:bg-gray-100 rounded"
+          data-testid={`move-spec-${index}`}
+        >
+          <GripVertical className="w-4 h-4 text-gray-400" />
+        </div>
+      </TableCell>
+      <TableCell>
+        {spec.editable ? (
+          <Input
+            value={spec.key}
+            onChange={(e) => updateSpec(index, 'key', e.target.value)}
+            placeholder="Attribute name"
+            data-testid={`spec-key-${index}`}
+          />
+        ) : (
+          <span className="font-medium" data-testid={`spec-key-readonly-${index}`}>{spec.key}</span>
+        )}
+      </TableCell>
+      <TableCell>
+        <Input
+          value={spec.value}
+          onChange={(e) => updateSpec(index, 'value', e.target.value)}
+          placeholder="Detail value"
+          data-testid={`spec-value-${index}`}
+        />
+      </TableCell>
+      <TableCell>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => removeRow(index)}
+          data-testid={`remove-spec-${index}`}
+        >
+          <X className="w-4 h-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 // Product Specs Section Component
 function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const [specs, setSpecs] = useState([
@@ -648,87 +741,55 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Product Specifications</h3>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={undo} disabled={history.length === 0} data-testid="undo-specs">
-            <Undo className="w-4 h-4 mr-2" />
-            Undo
-          </Button>
-          <Button variant="outline" size="sm" onClick={addRow} data-testid="add-spec-row">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Row
+    <DndProvider backend={HTML5Backend}>
+      <div className="h-full flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Product Specifications</h3>
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm" onClick={undo} disabled={history.length === 0} data-testid="undo-specs">
+              <Undo className="w-4 h-4 mr-2" />
+              Undo
+            </Button>
+            <Button variant="outline" size="sm" onClick={addRow} data-testid="add-spec-row">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Row
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex-1 border rounded-lg overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12"></TableHead>
+                <TableHead>Product Attribute</TableHead>
+                <TableHead>Detail</TableHead>
+                <TableHead className="w-20">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {specs.map((spec, index) => (
+                <DraggableSpecRow
+                  key={index}
+                  spec={spec}
+                  index={index}
+                  moveRow={moveRow}
+                  updateSpec={updateSpec}
+                  removeRow={removeRow}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        
+        <div className="flex justify-end mt-4">
+          <Button data-testid="save-specs">
+            <Save className="w-4 h-4 mr-2" />
+            Save
           </Button>
         </div>
       </div>
-      
-      <div className="flex-1 border rounded-lg overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-4"></TableHead>
-              <TableHead>Product Attribute</TableHead>
-              <TableHead>Detail</TableHead>
-              <TableHead className="w-20">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {specs.map((spec, index) => (
-              <TableRow key={index} data-testid={`spec-row-${index}`}>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="cursor-move"
-                    data-testid={`move-spec-${index}`}
-                  >
-                    <Move className="w-4 h-4" />
-                  </Button>
-                </TableCell>
-                <TableCell>
-                  {spec.editable ? (
-                    <Input
-                      value={spec.key}
-                      onChange={(e) => updateSpec(index, 'key', e.target.value)}
-                      placeholder="Attribute name"
-                      data-testid={`spec-key-${index}`}
-                    />
-                  ) : (
-                    <span className="font-medium" data-testid={`spec-key-readonly-${index}`}>{spec.key}</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Input
-                    value={spec.value}
-                    onChange={(e) => updateSpec(index, 'value', e.target.value)}
-                    placeholder="Detail value"
-                    data-testid={`spec-value-${index}`}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => removeRow(index)}
-                    data-testid={`remove-spec-${index}`}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      
-      <div className="flex justify-end mt-4">
-        <Button data-testid="save-specs">
-          <Save className="w-4 h-4 mr-2" />
-          Save
-        </Button>
-      </div>
-    </div>
+    </DndProvider>
   );
 }
 
