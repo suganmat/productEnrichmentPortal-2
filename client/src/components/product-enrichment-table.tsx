@@ -977,7 +977,7 @@ function FAQsSection({ product }: { product: ProductSKU }) {
         </Table>
       </div>
       
-      <div className="flex justify-start mt-4">
+      <div className="flex justify-end mt-4">
         <Button data-testid="save-faqs">
           <Save className="w-4 h-4 mr-2" />
           Save
@@ -1094,6 +1094,13 @@ function HTMLAssetsSection({ product }: { product: ProductSKU }) {
           className="h-full"
         />
       </div>
+      
+      <div className="flex justify-end mt-4">
+        <Button data-testid="save-html">
+          <Save className="w-4 h-4 mr-2" />
+          Save
+        </Button>
+      </div>
     </div>
   );
 }
@@ -1156,7 +1163,7 @@ function SummarySection({ product }: { product: ProductSKU }) {
         </div>
       </div>
       
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-end mt-6">
         <Button 
           onClick={handleSubmit}
           className="bg-green-600 hover:bg-green-700"
