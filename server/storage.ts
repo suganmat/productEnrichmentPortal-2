@@ -114,7 +114,8 @@ export class MemStorage implements IStorage {
         brand: "Samsung",
         category: "Mobile phones",
         status: "To be reviewed",
-        availableOnBrandWebsite: true
+        availableOnBrandWebsite: true,
+        lastModifiedBy: "Suganthan"
       },
       {
         mpn: "MPN-002",
@@ -123,7 +124,8 @@ export class MemStorage implements IStorage {
         brand: "Sony",
         category: "Audio equipment",
         status: "Under review",
-        availableOnBrandWebsite: true
+        availableOnBrandWebsite: true,
+        lastModifiedBy: "John Doe"
       },
       {
         mpn: "MPN-003",
@@ -132,7 +134,8 @@ export class MemStorage implements IStorage {
         brand: "Dell",
         category: "Computers",
         status: "Reviewed",
-        availableOnBrandWebsite: false
+        availableOnBrandWebsite: false,
+        lastModifiedBy: "Suganthan"
       },
       {
         mpn: "27US550-W.AEK",
@@ -141,7 +144,8 @@ export class MemStorage implements IStorage {
         brand: "LG",
         category: "Monitors",
         status: "To be reviewed",
-        availableOnBrandWebsite: true
+        availableOnBrandWebsite: true,
+        lastModifiedBy: "Jane Smith"
       },
       {
         mpn: "MPN-005",
@@ -150,7 +154,8 @@ export class MemStorage implements IStorage {
         brand: "Apple",
         category: "Mobile phones",
         status: "Under review",
-        availableOnBrandWebsite: true
+        availableOnBrandWebsite: true,
+        lastModifiedBy: "Suganthan"
       },
       {
         mpn: "MPN-006",
@@ -159,7 +164,8 @@ export class MemStorage implements IStorage {
         brand: "Apple",
         category: "Computers",
         status: "Reviewed",
-        availableOnBrandWebsite: false
+        availableOnBrandWebsite: false,
+        lastModifiedBy: "John Doe"
       }
     ];
 
@@ -327,6 +333,7 @@ export class MemStorage implements IStorage {
       dateUploaded: new Date(),
       status: productSKUData.status || "Saved",
       availableOnBrandWebsite: productSKUData.availableOnBrandWebsite ?? false,
+      lastModifiedBy: productSKUData.lastModifiedBy ?? null,
     };
     this.productSKUs.set(productSKU.id, productSKU);
     return productSKU;

@@ -176,9 +176,16 @@ export function ProductEnrichmentTable() {
               </Button>
               <span>{selectedProduct.productName}</span>
             </div>
-            <Badge className={getStatusColor(selectedProduct.status)}>
-              {selectedProduct.status}
-            </Badge>
+            <div className="flex items-center space-x-4">
+              {selectedProduct.lastModifiedBy && (
+                <span className="text-sm font-normal text-gray-600" data-testid="last-modified-by">
+                  Last modified by: <span className="font-medium">{selectedProduct.lastModifiedBy}</span>
+                </span>
+              )}
+              <Badge className={getStatusColor(selectedProduct.status)} data-testid="product-status-badge">
+                {selectedProduct.status}
+              </Badge>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>

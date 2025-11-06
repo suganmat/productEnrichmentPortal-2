@@ -68,6 +68,7 @@ export const productSKUs = pgTable("product_skus", {
   category: text("category").notNull(),
   status: text("status").notNull().default("Saved"),
   availableOnBrandWebsite: boolean("available_on_brand_website").notNull().default(false),
+  lastModifiedBy: text("last_modified_by"),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
