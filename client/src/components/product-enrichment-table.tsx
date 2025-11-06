@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, GripVertical, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import type { ProductSKU } from "@shared/schema";
@@ -1029,6 +1031,9 @@ function ImagesSection({ product }: { product: ProductSKU }) {
     { id: 2, url: '/api/placeholder/300/200', alt: 'Product side view' },
     { id: 3, url: '/api/placeholder/300/200', alt: 'Product back view' }
   ]);
+  const [focusedImage, setFocusedImage] = useState<{ id: number; url: string; alt: string } | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(null);
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   const addImage = () => {
     const newImage = {
@@ -1039,8 +1044,27 @@ function ImagesSection({ product }: { product: ProductSKU }) {
     setImages(prev => [...prev, newImage]);
   };
 
+  const handleImageUpload = (imageId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const url = e.target?.result as string;
+        setImages(prev => 
+          prev.map(img => img.id === imageId ? { ...img, url } : img)
+        );
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const removeImage = (id: number) => {
     setImages(prev => prev.filter(img => img.id !== id));
+    setDeleteConfirmation(null);
+  };
+
+  const openImageFocus = (image: { id: number; url: string; alt: string }) => {
+    setFocusedImage(image);
   };
 
   return (
@@ -1056,8 +1080,20 @@ function ImagesSection({ product }: { product: ProductSKU }) {
       <div className="flex-1 grid grid-cols-3 gap-4 overflow-auto">
         {images.map((image) => (
           <div key={image.id} className="relative border rounded-lg p-2" data-testid={`image-block-${image.id}`}>
-            <div className="aspect-video bg-gray-100 rounded flex items-center justify-center mb-2">
-              <span className="text-gray-500 text-sm">Image Placeholder</span>
+            <div 
+              className="aspect-video bg-gray-100 rounded flex items-center justify-center mb-2 cursor-pointer hover:bg-gray-200 transition-colors overflow-hidden"
+              onClick={() => openImageFocus(image)}
+              data-testid={`image-preview-${image.id}`}
+            >
+              {image.url.includes('placeholder') ? (
+                <span className="text-gray-500 text-sm">Click to view</span>
+              ) : (
+                <img 
+                  src={image.url} 
+                  alt={image.alt} 
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             <Input 
               value={image.alt} 
@@ -1065,14 +1101,32 @@ function ImagesSection({ product }: { product: ProductSKU }) {
                 prev.map(img => img.id === image.id ? { ...img, alt: e.target.value } : img)
               )}
               placeholder="Image description"
-              className="text-xs"
+              className="text-xs mb-2"
               data-testid={`image-alt-${image.id}`}
             />
+            <input
+              type="file"
+              ref={(el) => (fileInputRefs.current[image.id] = el)}
+              onChange={(e) => handleImageUpload(image.id, e)}
+              accept="image/*"
+              className="hidden"
+              data-testid={`image-file-input-${image.id}`}
+            />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full"
+              onClick={() => fileInputRefs.current[image.id]?.click()}
+              data-testid={`upload-image-${image.id}`}
+            >
+              <Upload className="w-3 h-3 mr-2" />
+              Upload
+            </Button>
             <Button 
               variant="destructive" 
               size="sm" 
               className="absolute top-1 right-1"
-              onClick={() => removeImage(image.id)}
+              onClick={() => setDeleteConfirmation(image.id)}
               data-testid={`remove-image-${image.id}`}
             >
               <X className="w-3 h-3" />
@@ -1087,6 +1141,52 @@ function ImagesSection({ product }: { product: ProductSKU }) {
           Save
         </Button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmation !== null} onOpenChange={() => setDeleteConfirmation(null)}>
+        <AlertDialogContent data-testid="delete-image-confirmation">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Image?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this image? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="cancel-delete-image">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deleteConfirmation && removeImage(deleteConfirmation)}
+              data-testid="confirm-delete-image"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Image Focus Dialog */}
+      <Dialog open={focusedImage !== null} onOpenChange={() => setFocusedImage(null)}>
+        <DialogContent className="max-w-[70vw] max-h-[70vh] p-0 overflow-hidden" data-testid="focused-image-dialog">
+          <div className="relative w-full h-full flex items-center justify-center bg-black">
+            {focusedImage && (
+              <img 
+                src={focusedImage.url} 
+                alt={focusedImage.alt}
+                className="max-w-full max-h-[70vh] object-contain"
+                data-testid="focused-image"
+              />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 text-white hover:bg-white/20"
+              onClick={() => setFocusedImage(null)}
+              data-testid="close-focused-image"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
