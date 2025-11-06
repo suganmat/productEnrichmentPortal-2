@@ -900,27 +900,42 @@ Value-Added Features:
 // FAQs Section Component
 function FAQsSection({ product }: { product: ProductSKU }) {
   const [faqs, setFaqs] = useState([
-    { question: 'What is the screen size?', answer: '27 inches' },
-    { question: 'What resolution does it support?', answer: '4K Ultra HD (3840x2160)' },
-    { question: 'What ports are available?', answer: '2x HDMI, DisplayPort 1.4, Headphone jack' },
-    { question: 'What is included in the box?', answer: 'Monitor, HDMI cable, screws, stand base, software' }
+    { id: 1, question: 'What is the screen size?', answer: '27 inches' },
+    { id: 2, question: 'What resolution does it support?', answer: '4K Ultra HD (3840x2160)' },
+    { id: 3, question: 'What ports are available?', answer: '2x HDMI, DisplayPort 1.4, Headphone jack' },
+    { id: 4, question: 'What is included in the box?', answer: 'Monitor, HDMI cable, screws, stand base, software' }
   ]);
   const [history, setHistory] = useState<typeof faqs[]>([]);
 
   const generateMoreFAQs = () => {
     setHistory(prev => [...prev, [...faqs]]);
     const newFAQs = [
-      { question: 'Is this monitor suitable for gaming?', answer: 'Yes, with 60Hz refresh rate it provides smooth gaming experience' },
-      { question: 'Does it support HDR?', answer: 'Please check the technical specifications for HDR support details' },
-      { question: 'What is the warranty period?', answer: 'Standard manufacturer warranty applies - please check with seller' }
+      { id: Date.now(), question: 'Is this monitor suitable for gaming?', answer: 'Yes, with 60Hz refresh rate it provides smooth gaming experience' },
+      { id: Date.now() + 1, question: 'Does it support HDR?', answer: 'Please check the technical specifications for HDR support details' },
+      { id: Date.now() + 2, question: 'What is the warranty period?', answer: 'Standard manufacturer warranty applies - please check with seller' }
     ];
     setFaqs(prev => [...prev, ...newFAQs]);
   };
 
-  const updateFAQ = (index: number, field: 'question' | 'answer', value: string) => {
-    setFaqs(prev => prev.map((faq, i) => 
-      i === index ? { ...faq, [field]: value } : faq
+  const addFAQ = () => {
+    setHistory(prev => [...prev, [...faqs]]);
+    const newFAQ = {
+      id: Date.now(),
+      question: 'New Question',
+      answer: 'New Answer'
+    };
+    setFaqs(prev => [...prev, newFAQ]);
+  };
+
+  const updateFAQ = (id: number, field: 'question' | 'answer', value: string) => {
+    setFaqs(prev => prev.map((faq) => 
+      faq.id === id ? { ...faq, [field]: value } : faq
     ));
+  };
+
+  const removeFAQ = (id: number) => {
+    setHistory(prev => [...prev, [...faqs]]);
+    setFaqs(prev => prev.filter(faq => faq.id !== id));
   };
 
   const undo = () => {
@@ -947,34 +962,53 @@ function FAQsSection({ product }: { product: ProductSKU }) {
             <Plus className="w-4 h-4 mr-2" />
             Generate More FAQs
           </Button>
+          <Button variant="outline" size="sm" onClick={addFAQ} data-testid="add-faq">
+            <Plus className="w-4 h-4 mr-2" />
+            Add FAQ
+          </Button>
         </div>
       </div>
       
-      <div className="flex-1 border rounded-lg overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Question</TableHead>
-              <TableHead>Answer</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {faqs.map((faq, index) => (
-              <TableRow key={index} data-testid={`faq-row-${index}`}>
-                <TableCell className="font-medium">
-                  <span data-testid={`faq-question-${index}`}>{faq.question}</span>
-                </TableCell>
-                <TableCell>
-                  <Input
-                    value={faq.answer}
-                    onChange={(e) => updateFAQ(index, 'answer', e.target.value)}
-                    data-testid={`faq-answer-${index}`}
+      <div className="flex-1 overflow-auto space-y-3">
+        {faqs.map((faq) => (
+          <Card key={faq.id} className="shadow-sm hover:shadow-md transition-shadow" data-testid={`faq-card-${faq.id}`}>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Question</label>
+                  <Textarea
+                    value={faq.question}
+                    onChange={(e) => updateFAQ(faq.id, 'question', e.target.value)}
+                    className="resize-none h-24"
+                    placeholder="Enter question..."
+                    data-testid={`faq-question-${faq.id}`}
                   />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium text-gray-700">Answer</label>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => removeFAQ(faq.id)}
+                      className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                      data-testid={`remove-faq-${faq.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={faq.answer}
+                    onChange={(e) => updateFAQ(faq.id, 'answer', e.target.value)}
+                    className="resize-none h-24"
+                    placeholder="Enter answer..."
+                    data-testid={`faq-answer-${faq.id}`}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
       
       <div className="flex justify-end mt-4">
