@@ -22,8 +22,10 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 
 - **Comprehensive AI Product Enrichment Dashboard**
   - Manage, filter, review, and enrich product SKUs with a full-featured UI.
-  - Add specifications, FAQs, images, HTML assets, key features, and summary, all in a user-friendly workflow.
+  - Add specifications, FAQs with large horizontal card layout, images with upload and focus features, HTML assets, key features, and summary.
+  - Image management with individual upload buttons, delete confirmation dialogs, and click-to-focus overlay (60-70% screen).
   - Built-in chat support simulation for AI product assistance.
+  - User tracking with "Last modified by" field for all product changes.
 
 - **Single Sign-On (SSO) Authentication**
   - Seamless session management using Replit Auth for secure and smooth login.
