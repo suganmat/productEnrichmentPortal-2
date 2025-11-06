@@ -928,6 +928,7 @@ function FAQsSection({ product }: { product: ProductSKU }) {
   };
 
   const updateFAQ = (id: number, field: 'question' | 'answer', value: string) => {
+    setHistory(prev => [...prev, [...faqs]]);
     setFaqs(prev => prev.map((faq) => 
       faq.id === id ? { ...faq, [field]: value } : faq
     ));
