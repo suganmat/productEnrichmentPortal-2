@@ -39,23 +39,64 @@ export function AttributesDetailsSettings() {
   const [keyFeaturesFormat, setKeyFeaturesFormat] = useState("grid");
   const [keyFeaturesInstructions, setKeyFeaturesInstructions] = useState("Display up to 5 key features with icons");
 
-  // Mock data
+  // Mock data - 18 parent categories with deep hierarchies
   const parentCategories: ParentCategory[] = [
-    { id: 1, name: "Electronics", subCategoryCount: 5 },
-    { id: 2, name: "Fashion", subCategoryCount: 8 },
-    { id: 3, name: "Home & Garden", subCategoryCount: 6 }
+    { id: 1, name: "Electronics", subCategoryCount: 10 },
+    { id: 2, name: "Fashion & Apparel", subCategoryCount: 10 },
+    { id: 3, name: "Home & Garden", subCategoryCount: 9 },
+    { id: 4, name: "Sports & Outdoors", subCategoryCount: 10 },
+    { id: 5, name: "Beauty & Personal Care", subCategoryCount: 8 },
+    { id: 6, name: "Toys & Games", subCategoryCount: 9 },
+    { id: 7, name: "Books & Media", subCategoryCount: 7 },
+    { id: 8, name: "Food & Beverages", subCategoryCount: 9 },
+    { id: 9, name: "Automotive", subCategoryCount: 10 },
+    { id: 10, name: "Industrial & Supplies", subCategoryCount: 8 },
+    { id: 11, name: "Pet Supplies", subCategoryCount: 9 },
+    { id: 12, name: "Baby & Kids", subCategoryCount: 10 },
+    { id: 13, name: "Furniture", subCategoryCount: 9 },
+    { id: 14, name: "Office Equipment", subCategoryCount: 8 },
+    { id: 15, name: "Luggage & Travel", subCategoryCount: 7 },
+    { id: 16, name: "Jewelry & Watches", subCategoryCount: 8 },
+    { id: 17, name: "Tools & Hardware", subCategoryCount: 10 },
+    { id: 18, name: "Art & Craft", subCategoryCount: 9 }
   ];
 
   const getSubCategories = (parentId: number): SubCategory[] => {
     const mockData: { [key: number]: SubCategory[] } = {
       1: [
         { id: 11, name: "Mobile Phones", hasChildren: true, level: 1 },
-        { id: 12, name: "Laptops", hasChildren: true, level: 1 },
-        { id: 13, name: "Accessories", hasChildren: false, level: 1 }
+        { id: 12, name: "Laptops & Computers", hasChildren: true, level: 1 },
+        { id: 13, name: "Tablets", hasChildren: true, level: 1 },
+        { id: 14, name: "Audio Devices", hasChildren: true, level: 1 },
+        { id: 15, name: "Cameras", hasChildren: true, level: 1 },
+        { id: 16, name: "Gaming Consoles", hasChildren: true, level: 1 },
+        { id: 17, name: "Smart Home", hasChildren: true, level: 1 },
+        { id: 18, name: "Wearables", hasChildren: false, level: 1 },
+        { id: 19, name: "TV & Displays", hasChildren: false, level: 1 },
+        { id: 20, name: "Cables & Adapters", hasChildren: false, level: 1 }
       ],
       2: [
         { id: 21, name: "Men's Clothing", hasChildren: true, level: 1 },
-        { id: 22, name: "Women's Clothing", hasChildren: false, level: 1 }
+        { id: 22, name: "Women's Clothing", hasChildren: true, level: 1 },
+        { id: 23, name: "Children's Clothing", hasChildren: true, level: 1 },
+        { id: 24, name: "Footwear", hasChildren: true, level: 1 },
+        { id: 25, name: "Bags & Backpacks", hasChildren: false, level: 1 },
+        { id: 26, name: "Accessories", hasChildren: true, level: 1 },
+        { id: 27, name: "Sports Wear", hasChildren: false, level: 1 },
+        { id: 28, name: "Formal Wear", hasChildren: false, level: 1 },
+        { id: 29, name: "Casual Wear", hasChildren: false, level: 1 },
+        { id: 30, name: "Activewear", hasChildren: false, level: 1 }
+      ],
+      3: [
+        { id: 31, name: "Furniture", hasChildren: true, level: 1 },
+        { id: 32, name: "Bedding", hasChildren: true, level: 1 },
+        { id: 33, name: "Kitchenware", hasChildren: true, level: 1 },
+        { id: 34, name: "Decorations", hasChildren: true, level: 1 },
+        { id: 35, name: "Lighting", hasChildren: false, level: 1 },
+        { id: 36, name: "Rugs & Carpets", hasChildren: false, level: 1 },
+        { id: 37, name: "Plants & Gardening", hasChildren: true, level: 1 },
+        { id: 38, name: "Outdoor Furniture", hasChildren: false, level: 1 },
+        { id: 39, name: "Storage Solutions", hasChildren: false, level: 1 }
       ]
     };
     return mockData[parentId] || [];
@@ -64,12 +105,107 @@ export function AttributesDetailsSettings() {
   const getChildSubCategories = (parentId: number): SubCategory[] => {
     const mockData: { [key: number]: SubCategory[] } = {
       11: [
-        { id: 111, name: "Smartphones", hasChildren: false, level: 2 },
-        { id: 112, name: "Feature Phones", hasChildren: false, level: 2 }
+        { id: 111, name: "Android Smartphones", hasChildren: true, level: 2 },
+        { id: 112, name: "iPhones", hasChildren: true, level: 2 },
+        { id: 113, name: "Budget Phones", hasChildren: false, level: 2 },
+        { id: 114, name: "Premium Phones", hasChildren: false, level: 2 }
       ],
       12: [
-        { id: 121, name: "Gaming Laptops", hasChildren: false, level: 2 },
-        { id: 122, name: "Ultrabooks", hasChildren: false, level: 2 }
+        { id: 121, name: "Gaming Laptops", hasChildren: true, level: 2 },
+        { id: 122, name: "Ultrabooks", hasChildren: true, level: 2 },
+        { id: 123, name: "Business Laptops", hasChildren: false, level: 2 },
+        { id: 124, name: "Chromebooks", hasChildren: false, level: 2 }
+      ],
+      13: [
+        { id: 131, name: "iPad Pro", hasChildren: false, level: 2 },
+        { id: 132, name: "Android Tablets", hasChildren: true, level: 2 },
+        { id: 133, name: "Budget Tablets", hasChildren: false, level: 2 }
+      ],
+      21: [
+        { id: 211, name: "T-Shirts", hasChildren: true, level: 2 },
+        { id: 212, name: "Shirts", hasChildren: true, level: 2 },
+        { id: 213, name: "Pants", hasChildren: false, level: 2 },
+        { id: 214, name: "Jackets", hasChildren: true, level: 2 }
+      ],
+      22: [
+        { id: 221, name: "Tops", hasChildren: true, level: 2 },
+        { id: 222, name: "Dresses", hasChildren: true, level: 2 },
+        { id: 223, name: "Skirts", hasChildren: false, level: 2 },
+        { id: 224, name: "Sarees", hasChildren: false, level: 2 }
+      ],
+      31: [
+        { id: 311, name: "Sofas", hasChildren: true, level: 2 },
+        { id: 312, name: "Beds", hasChildren: true, level: 2 },
+        { id: 313, name: "Chairs", hasChildren: false, level: 2 },
+        { id: 314, name: "Tables", hasChildren: false, level: 2 }
+      ],
+      111: [
+        { id: 1111, name: "Android Budget (Under 15K)", hasChildren: true, level: 3 },
+        { id: 1112, name: "Android Mid-Range (15K-40K)", hasChildren: true, level: 3 },
+        { id: 1113, name: "Android Premium (40K+)", hasChildren: false, level: 3 }
+      ],
+      112: [
+        { id: 1121, name: "iPhone 13 & Below", hasChildren: true, level: 3 },
+        { id: 1122, name: "iPhone 14 Series", hasChildren: true, level: 3 },
+        { id: 1123, name: "iPhone 15 Series", hasChildren: false, level: 3 }
+      ],
+      121: [
+        { id: 1211, name: "Entry Level Gaming", hasChildren: true, level: 3 },
+        { id: 1212, name: "Mid-Range Gaming", hasChildren: true, level: 3 },
+        { id: 1213, name: "High-End Gaming", hasChildren: false, level: 3 }
+      ],
+      211: [
+        { id: 2111, name: "Casual T-Shirts", hasChildren: true, level: 3 },
+        { id: 2112, name: "Formal T-Shirts", hasChildren: false, level: 3 },
+        { id: 2113, name: "Sports T-Shirts", hasChildren: false, level: 3 }
+      ],
+      311: [
+        { id: 3111, name: "2-Seater Sofas", hasChildren: true, level: 3 },
+        { id: 3112, name: "3-Seater Sofas", hasChildren: true, level: 3 },
+        { id: 3113, name: "Sectional Sofas", hasChildren: false, level: 3 }
+      ],
+      1111: [
+        { id: 11111, name: "Xiaomi Budget Phones", hasChildren: true, level: 4 },
+        { id: 11112, name: "Realme Budget Phones", hasChildren: false, level: 4 },
+        { id: 11113, name: "Motorola Budget Phones", hasChildren: false, level: 4 }
+      ],
+      1121: [
+        { id: 11211, name: "iPhone 13", hasChildren: true, level: 4 },
+        { id: 11212, name: "iPhone 13 Pro", hasChildren: false, level: 4 },
+        { id: 11213, name: "iPhone 13 Pro Max", hasChildren: false, level: 4 }
+      ],
+      1211: [
+        { id: 12111, name: "RTX 2060 Gaming Laptops", hasChildren: true, level: 4 },
+        { id: 12112, name: "RTX 3050 Gaming Laptops", hasChildren: false, level: 4 },
+        { id: 12113, name: "GTX 1650 Gaming Laptops", hasChildren: false, level: 4 }
+      ],
+      2111: [
+        { id: 21111, name: "Cotton Casual T-Shirts", hasChildren: true, level: 4 },
+        { id: 21112, name: "Printed Casual T-Shirts", hasChildren: false, level: 4 },
+        { id: 21113, name: "Solid Casual T-Shirts", hasChildren: false, level: 4 }
+      ],
+      3111: [
+        { id: 31111, name: "Fabric 2-Seater Sofas", hasChildren: true, level: 5 },
+        { id: 31112, name: "Leather 2-Seater Sofas", hasChildren: false, level: 5 }
+      ],
+      11111: [
+        { id: 111111, name: "Xiaomi Redmi Note Series", hasChildren: false, level: 5 },
+        { id: 111112, name: "Xiaomi Poco Series", hasChildren: false, level: 5 },
+        { id: 111113, name: "Xiaomi A Series", hasChildren: false, level: 5 }
+      ],
+      12111: [
+        { id: 121111, name: "MSI RTX 2060 Laptops", hasChildren: false, level: 5 },
+        { id: 121112, name: "ASUS RTX 2060 Laptops", hasChildren: false, level: 5 },
+        { id: 121113, name: "Dell RTX 2060 Laptops", hasChildren: false, level: 5 }
+      ],
+      21111: [
+        { id: 211111, name: "100% Cotton White T-Shirts", hasChildren: false, level: 5 },
+        { id: 211112, name: "100% Cotton Colored T-Shirts", hasChildren: false, level: 5 },
+        { id: 211113, name: "100% Cotton Striped T-Shirts", hasChildren: false, level: 5 }
+      ],
+      31111: [
+        { id: 311111, name: "Velvet Fabric 2-Seater Sofas", hasChildren: false, level: 5 },
+        { id: 311112, name: "Linen Fabric 2-Seater Sofas", hasChildren: false, level: 5 }
       ]
     };
     return mockData[parentId] || [];
