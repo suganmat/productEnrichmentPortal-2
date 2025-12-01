@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronRight, Plus, Save, Trash2, GripVertical } from "lucide-react";
-import { motion } from "framer-motion";
+import { ChevronRight, Plus, Save, Trash2, GripVertical, X, Edit2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ParentCategory {
   id: number;
@@ -27,10 +27,17 @@ interface Attribute {
   sequence: number;
 }
 
+interface SampleAttribute {
+  id: number;
+  name: string;
+  description: string;
+}
+
 export function AttributesDetailsSettings() {
   const [selectedParent, setSelectedParent] = useState<ParentCategory | null>(null);
   const [expandedSubCategories, setExpandedSubCategories] = useState<Set<number>>(new Set());
   const [selectedLeafCategory, setSelectedLeafCategory] = useState<SubCategory | null>(null);
+  const [isConfiguring, setIsConfiguring] = useState(false);
   const [attributes, setAttributes] = useState<Attribute[]>([
     { id: 1, name: "Color", description: "Product color options", sequence: 1 },
     { id: 2, name: "Size", description: "Available sizes", sequence: 2 },
@@ -211,6 +218,53 @@ export function AttributesDetailsSettings() {
     return mockData[parentId] || [];
   };
 
+  const getSampleAttributes = (leafCategoryId?: number): SampleAttribute[] => {
+    const categoryAttributes: { [key: number]: SampleAttribute[] } = {
+      113: [
+        { id: 1, name: "Screen Size", description: "Display diagonal in inches" },
+        { id: 2, name: "Battery Capacity", description: "Battery mAh rating" },
+        { id: 3, name: "Processor", description: "CPU chipset brand and model" },
+        { id: 4, name: "RAM", description: "Random Access Memory in GB" },
+        { id: 5, name: "Storage", description: "Internal storage capacity" }
+      ],
+      114: [
+        { id: 1, name: "Processor", description: "CPU model and generation" },
+        { id: 2, name: "RAM", description: "System memory in GB" },
+        { id: 3, name: "Storage", description: "SSD/HDD capacity" },
+        { id: 4, name: "Display", description: "Screen size and refresh rate" },
+        { id: 5, name: "GPU", description: "Graphics card model" }
+      ],
+      213: [
+        { id: 1, name: "Fabric", description: "Material composition" },
+        { id: 2, name: "Size", description: "Clothing size (S, M, L, XL)" },
+        { id: 3, name: "Color", description: "Available color options" },
+        { id: 4, name: "Fit", description: "Fit type (Slim, Regular, Loose)" },
+        { id: 5, name: "Care", description: "Washing and care instructions" }
+      ],
+      313: [
+        { id: 1, name: "Material", description: "Upholstery fabric type" },
+        { id: 2, name: "Dimensions", description: "Length x Width x Height" },
+        { id: 3, name: "Seating Capacity", description: "Number of seats" },
+        { id: 4, name: "Color", description: "Available colors" },
+        { id: 5, name: "Assembly", description: "Assembly required status" }
+      ],
+      131: [
+        { id: 1, name: "Screen Size", description: "Display diagonal in inches" },
+        { id: 2, name: "Storage", description: "Internal storage capacity" },
+        { id: 3, name: "RAM", description: "System memory" },
+        { id: 4, name: "Camera", description: "Rear camera megapixels" },
+        { id: 5, name: "Battery Life", description: "Estimated hours of usage" }
+      ]
+    };
+    return categoryAttributes[leafCategoryId ?? 0] || [
+      { id: 1, name: "Attribute 1", description: "Sample attribute description" },
+      { id: 2, name: "Attribute 2", description: "Sample attribute description" },
+      { id: 3, name: "Attribute 3", description: "Sample attribute description" },
+      { id: 4, name: "Attribute 4", description: "Sample attribute description" },
+      { id: 5, name: "Attribute 5", description: "Sample attribute description" }
+    ];
+  };
+
   const toggleSubCategory = (id: number) => {
     const newExpanded = new Set(expandedSubCategories);
     if (newExpanded.has(id)) {
@@ -337,139 +391,195 @@ export function AttributesDetailsSettings() {
           </Card>
         )}
 
-        {/* Right: Details when leaf selected */}
+        {/* Right: Sample Attributes Display */}
         {selectedLeafCategory && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">{selectedLeafCategory.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 text-sm">
-                <p className="text-gray-600">Selected leaf category for configuration</p>
-                <Button className="w-full" size="sm" data-testid="configure-leaf">
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 font-semibold">Sample Attributes ({getSampleAttributes(selectedLeafCategory.id).length})</p>
+                
+                <div className="space-y-3 max-h-80 overflow-auto">
+                  {getSampleAttributes(selectedLeafCategory.id).map((attr) => (
+                    <motion.div
+                      key={attr.id}
+                      className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-transparent hover:shadow-md transition-shadow"
+                      whileHover={{ x: 4 }}
+                      data-testid={`sample-attr-${attr.id}`}
+                    >
+                      <div className="text-sm font-medium text-gray-900">{attr.name}</div>
+                      <div className="text-xs text-gray-600 mt-1">{attr.description}</div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <motion.button
+                  onClick={() => setIsConfiguring(true)}
+                  className="w-full mt-auto p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  data-testid="configure-leaf"
+                >
+                  <Edit2 className="w-4 h-4" />
                   Configure Attributes & Features
-                </Button>
+                </motion.button>
               </div>
             </CardContent>
           </Card>
         )}
       </div>
 
-      {/* Tabs for Attributes & Features */}
-      {selectedLeafCategory && (
-        <Card>
-          <CardContent className="pt-6">
-            <Tabs defaultValue="attributes" data-testid="config-tabs">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="attributes">Product Attributes</TabsTrigger>
-                <TabsTrigger value="features">Key Features</TabsTrigger>
-              </TabsList>
-
-              {/* Tab 1: Attributes */}
-              <TabsContent value="attributes" className="space-y-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-semibold">Product Attributes</h3>
-                  <Button
-                    size="sm"
-                    onClick={addAttribute}
-                    data-testid="add-attribute"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Attribute
-                  </Button>
+      {/* Configuration Modal/Section */}
+      <AnimatePresence>
+        {isConfiguring && selectedLeafCategory && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            data-testid="config-modal"
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              className="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold">Configure Attributes & Features</h2>
+                  <p className="text-sm text-gray-600 mt-1">{selectedLeafCategory.name}</p>
                 </div>
+                <motion.button
+                  onClick={() => setIsConfiguring(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-testid="close-modal"
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
+              </div>
 
-                <div className="space-y-3 max-h-80 overflow-auto">
-                  {attributes.map((attr, idx) => (
-                    <motion.div
-                      key={attr.id}
-                      className="border rounded-lg p-3 bg-white"
-                      layout
-                      data-testid={`attribute-${attr.id}`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <GripVertical className="w-4 h-4 mt-1 text-gray-400" />
-                        <div className="flex-1 space-y-2">
-                          <Input
-                            placeholder="Attribute name"
-                            value={attr.name}
-                            onChange={(e) => updateAttribute(attr.id, 'name', e.target.value)}
-                            className="text-sm"
-                            data-testid={`attr-name-${attr.id}`}
-                          />
-                          <Textarea
-                            placeholder="Description"
-                            value={attr.description}
-                            onChange={(e) => updateAttribute(attr.id, 'description', e.target.value)}
-                            className="text-sm resize-none"
-                            rows={2}
-                            data-testid={`attr-desc-${attr.id}`}
-                          />
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteAttribute(attr.id)}
-                          data-testid={`delete-attr-${attr.id}`}
+              {/* Modal Content - Tabs */}
+              <div className="p-6">
+                <Tabs defaultValue="attributes" data-testid="config-tabs">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="attributes">Product Attributes</TabsTrigger>
+                    <TabsTrigger value="features">Key Features</TabsTrigger>
+                  </TabsList>
+
+                  {/* Tab 1: Attributes */}
+                  <TabsContent value="attributes" className="space-y-4 mt-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold">Edit Product Attributes</h3>
+                      <Button
+                        size="sm"
+                        onClick={addAttribute}
+                        data-testid="add-attribute"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Attribute
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3 max-h-96 overflow-auto">
+                      {attributes.map((attr) => (
+                        <motion.div
+                          key={attr.id}
+                          className="border rounded-lg p-3 bg-white hover:shadow-md transition-shadow"
+                          layout
+                          data-testid={`attribute-${attr.id}`}
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                          <div className="flex items-start gap-2">
+                            <GripVertical className="w-4 h-4 mt-1 text-gray-400" />
+                            <div className="flex-1 space-y-2">
+                              <Input
+                                placeholder="Attribute name"
+                                value={attr.name}
+                                onChange={(e) => updateAttribute(attr.id, 'name', e.target.value)}
+                                className="text-sm"
+                                data-testid={`attr-name-${attr.id}`}
+                              />
+                              <Textarea
+                                placeholder="Description"
+                                value={attr.description}
+                                onChange={(e) => updateAttribute(attr.id, 'description', e.target.value)}
+                                className="text-sm resize-none"
+                                rows={2}
+                                data-testid={`attr-desc-${attr.id}`}
+                              />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteAttribute(attr.id)}
+                              data-testid={`delete-attr-${attr.id}`}
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-end pt-4 border-t">
+                      <Button data-testid="save-attributes">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Attributes
+                      </Button>
+                    </div>
+                  </TabsContent>
+
+                  {/* Tab 2: Key Features */}
+                  <TabsContent value="features" className="space-y-4 mt-4">
+                    <h3 className="font-semibold">Key Features Configuration</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium">Display Format</label>
+                        <select
+                          value={keyFeaturesFormat}
+                          onChange={(e) => setKeyFeaturesFormat(e.target.value)}
+                          className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+                          data-testid="features-format"
+                        >
+                          <option value="grid">Grid Layout</option>
+                          <option value="list">List Layout</option>
+                          <option value="carousel">Carousel Layout</option>
+                        </select>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
 
-                <div className="flex justify-end">
-                  <Button data-testid="save-attributes">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Attributes
-                  </Button>
-                </div>
-              </TabsContent>
+                      <div>
+                        <label className="text-sm font-medium">Instructions for End Users</label>
+                        <Textarea
+                          value={keyFeaturesInstructions}
+                          onChange={(e) => setKeyFeaturesInstructions(e.target.value)}
+                          placeholder="Describe how key features should be displayed..."
+                          rows={4}
+                          className="mt-1 text-sm"
+                          data-testid="features-instructions"
+                        />
+                      </div>
+                    </div>
 
-              {/* Tab 2: Key Features */}
-              <TabsContent value="features" className="space-y-4">
-                <h3 className="font-semibold">Key Features Configuration</h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Display Format</label>
-                    <select
-                      value={keyFeaturesFormat}
-                      onChange={(e) => setKeyFeaturesFormat(e.target.value)}
-                      className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-                      data-testid="features-format"
-                    >
-                      <option value="grid">Grid Layout</option>
-                      <option value="list">List Layout</option>
-                      <option value="carousel">Carousel Layout</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">Instructions for End Users</label>
-                    <Textarea
-                      value={keyFeaturesInstructions}
-                      onChange={(e) => setKeyFeaturesInstructions(e.target.value)}
-                      placeholder="Describe how key features should be displayed..."
-                      rows={4}
-                      className="mt-1 text-sm"
-                      data-testid="features-instructions"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button data-testid="save-features-config">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Configuration
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+                    <div className="flex justify-end pt-4 border-t">
+                      <Button data-testid="save-features-config">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Configuration
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
