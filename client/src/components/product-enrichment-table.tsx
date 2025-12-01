@@ -615,7 +615,7 @@ export function ProductEnrichmentTable() {
 
 // Draggable Spec Row Component
 interface DraggableSpecRowProps {
-  spec: { id: string; key: string; value: string; editable: boolean; source?: string };
+  spec: { id: string; key: string; value: string; editable: boolean; source?: string; sourceLinks?: string[] };
   index: number;
   moveRow: (fromIndex: number, toIndex: number) => void;
   updateSpec: (index: number, field: 'key' | 'value', value: string) => void;
@@ -623,9 +623,12 @@ interface DraggableSpecRowProps {
   removeRow: (index: number) => void;
   expandedSourceIndex: number | null;
   setExpandedSourceIndex: (index: number | null) => void;
+  uploadedFiles: {id: number, name: string, type: string, source: 'local' | 'onedrive' | 'url', url?: string, uploadedAt: Date}[];
+  expandedLinksIndex: number | null;
+  setExpandedLinksIndex: (index: number | null) => void;
 }
 
-function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex }: DraggableSpecRowProps) {
+function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex, uploadedFiles, expandedLinksIndex, setExpandedLinksIndex }: DraggableSpecRowProps) {
   const ref = useRef<HTMLTableRowElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -699,7 +702,7 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
           ) : (
             <span className="font-medium" data-testid={`spec-key-readonly-${index}`}>{spec.key}</span>
           )}
-          <div className="relative">
+          <div className="space-y-1">
             <button
               onClick={() => setExpandedSourceIndex(expandedSourceIndex === index ? null : index)}
               className="text-xs italic text-gray-500 hover:text-gray-700 transition-colors"
@@ -730,6 +733,51 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
                 ))}
               </motion.div>
             )}
+            {spec.source === 'AI-Generated' && (
+              <button
+                onClick={() => setExpandedLinksIndex(expandedLinksIndex === index ? null : index)}
+                className="text-xs text-blue-500 hover:text-blue-700 transition-colors"
+                data-testid={`view-sources-${index}`}
+              >
+                View sources ({(spec.sourceLinks?.length || 0) + uploadedFiles.length})
+              </button>
+            )}
+            {expandedLinksIndex === index && spec.source === 'AI-Generated' && (
+              <motion.div
+                initial={{ opacity: 0, y: -2 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-64 p-3"
+                data-testid={`sources-list-${index}`}
+              >
+                <div className="text-xs font-semibold mb-2">Source Links</div>
+                <div className="space-y-1 max-h-48 overflow-y-auto">
+                  {(spec.sourceLinks || []).map((link, i) => (
+                    <a
+                      key={i}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:text-blue-800 break-all line-clamp-2"
+                      data-testid={`source-link-${index}-${i}`}
+                    >
+                      🔗 {link}
+                    </a>
+                  ))}
+                  {uploadedFiles.map((file) => (
+                    <div
+                      key={file.id}
+                      className="text-xs text-gray-700"
+                      data-testid={`source-file-${index}-${file.id}`}
+                    >
+                      📄 {file.name}
+                    </div>
+                  ))}
+                  {(spec.sourceLinks?.length || 0) === 0 && uploadedFiles.length === 0 && (
+                    <p className="text-xs text-gray-500">No sources available</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </TableCell>
@@ -758,18 +806,19 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
 // Product Specs Section Component
 function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const [specs, setSpecs] = useState([
-    { id: '1', key: 'Brand', value: product.brand, editable: false, source: 'Data Feed' },
-    { id: '2', key: 'Type', value: 'LED', editable: true, source: 'Manual' },
-    { id: '3', key: 'Screen Size', value: '27 inch', editable: true, source: 'AI-Generated' },
-    { id: '4', key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true, source: 'AI-Generated' },
-    { id: '5', key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true, source: 'Manual' },
-    { id: '6', key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true, source: 'Seller Provided' },
-    { id: '7', key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true, source: 'Data Feed' },
-    { id: '8', key: 'Weight', value: '6.8 kg', editable: true, source: 'Manual' },
-    { id: '9', key: 'MPN', value: product.mpn, editable: false, source: 'Auto-Detected' }
+    { id: '1', key: 'Brand', value: product.brand, editable: false, source: 'Data Feed', sourceLinks: [] },
+    { id: '2', key: 'Type', value: 'LED', editable: true, source: 'Manual', sourceLinks: [] },
+    { id: '3', key: 'Screen Size', value: '27 inch', editable: true, source: 'AI-Generated', sourceLinks: ['https://specs.lg.com/en/features/display', 'https://techspecs.example.com/lg-27in'] },
+    { id: '4', key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true, source: 'AI-Generated', sourceLinks: ['https://www.lg.com/us/en/products/displays/27up550', 'https://displayport.org/4k-specs'] },
+    { id: '5', key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true, source: 'Manual', sourceLinks: [] },
+    { id: '6', key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true, source: 'Seller Provided', sourceLinks: [] },
+    { id: '7', key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true, source: 'Data Feed', sourceLinks: [] },
+    { id: '8', key: 'Weight', value: '6.8 kg', editable: true, source: 'Manual', sourceLinks: [] },
+    { id: '9', key: 'MPN', value: product.mpn, editable: false, source: 'Auto-Detected', sourceLinks: [] }
   ]);
   const [history, setHistory] = useState<typeof specs[]>([]);
   const [expandedSourceIndex, setExpandedSourceIndex] = useState<number | null>(null);
+  const [expandedLinksIndex, setExpandedLinksIndex] = useState<number | null>(null);
 
   const addRow = () => {
     setHistory(prev => [...prev, [...specs]]);
@@ -848,6 +897,9 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
                   removeRow={removeRow}
                   expandedSourceIndex={expandedSourceIndex}
                   setExpandedSourceIndex={setExpandedSourceIndex}
+                  uploadedFiles={[]}
+                  expandedLinksIndex={expandedLinksIndex}
+                  setExpandedLinksIndex={setExpandedLinksIndex}
                 />
               ))}
             </TableBody>
