@@ -615,14 +615,17 @@ export function ProductEnrichmentTable() {
 
 // Draggable Spec Row Component
 interface DraggableSpecRowProps {
-  spec: { id: string; key: string; value: string; editable: boolean };
+  spec: { id: string; key: string; value: string; editable: boolean; source?: string };
   index: number;
   moveRow: (fromIndex: number, toIndex: number) => void;
   updateSpec: (index: number, field: 'key' | 'value', value: string) => void;
+  updateSpecSource: (index: number, source: string) => void;
   removeRow: (index: number) => void;
+  expandedSourceIndex: number | null;
+  setExpandedSourceIndex: (index: number | null) => void;
 }
 
-function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: DraggableSpecRowProps) {
+function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex }: DraggableSpecRowProps) {
   const ref = useRef<HTMLTableRowElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -656,6 +659,8 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
 
   drag(drop(ref));
 
+  const sourceOptions = ['Manual', 'AI-Generated', 'Data Feed', 'Seller Provided', 'Auto-Detected'];
+
   return (
     <motion.tr
       ref={ref}
@@ -683,16 +688,50 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
         </div>
       </TableCell>
       <TableCell>
-        {spec.editable ? (
-          <Input
-            value={spec.key}
-            onChange={(e) => updateSpec(index, 'key', e.target.value)}
-            placeholder="Attribute name"
-            data-testid={`spec-key-${index}`}
-          />
-        ) : (
-          <span className="font-medium" data-testid={`spec-key-readonly-${index}`}>{spec.key}</span>
-        )}
+        <div className="space-y-1">
+          {spec.editable ? (
+            <Input
+              value={spec.key}
+              onChange={(e) => updateSpec(index, 'key', e.target.value)}
+              placeholder="Attribute name"
+              data-testid={`spec-key-${index}`}
+            />
+          ) : (
+            <span className="font-medium" data-testid={`spec-key-readonly-${index}`}>{spec.key}</span>
+          )}
+          <div className="relative">
+            <button
+              onClick={() => setExpandedSourceIndex(expandedSourceIndex === index ? null : index)}
+              className="text-xs italic text-gray-500 hover:text-gray-700 transition-colors"
+              data-testid={`source-trigger-${index}`}
+            >
+              source: {spec.source || 'Not set'}
+            </button>
+            {expandedSourceIndex === index && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-10"
+                data-testid={`source-dropdown-${index}`}
+              >
+                {sourceOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      updateSpecSource(index, option);
+                      setExpandedSourceIndex(null);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                    data-testid={`source-option-${index}-${option}`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        </div>
       </TableCell>
       <TableCell>
         <Input
@@ -719,22 +758,23 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, removeRow }: Dragg
 // Product Specs Section Component
 function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const [specs, setSpecs] = useState([
-    { id: '1', key: 'Brand', value: product.brand, editable: false },
-    { id: '2', key: 'Type', value: 'LED', editable: true },
-    { id: '3', key: 'Screen Size', value: '27 inch', editable: true },
-    { id: '4', key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true },
-    { id: '5', key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true },
-    { id: '6', key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true },
-    { id: '7', key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true },
-    { id: '8', key: 'Weight', value: '6.8 kg', editable: true },
-    { id: '9', key: 'MPN', value: product.mpn, editable: false }
+    { id: '1', key: 'Brand', value: product.brand, editable: false, source: 'Data Feed' },
+    { id: '2', key: 'Type', value: 'LED', editable: true, source: 'Manual' },
+    { id: '3', key: 'Screen Size', value: '27 inch', editable: true, source: 'AI-Generated' },
+    { id: '4', key: 'Display Features', value: '4K Ultra HD, 3840x2160, 60Hz, 300 cd/m²', editable: true, source: 'AI-Generated' },
+    { id: '5', key: 'Ports', value: '2 x HDMI, DisplayPort 1.4, Headphones (mini-jack)', editable: true, source: 'Manual' },
+    { id: '6', key: 'What\'s In The Box', value: 'LG UltraFine 27US550-W, HDMI cable, Screws, stand base, Software', editable: true, source: 'Seller Provided' },
+    { id: '7', key: 'Product Dimensions (H/W/D)', value: '36.35 cm x 61.35 cm x 4.54 cm', editable: true, source: 'Data Feed' },
+    { id: '8', key: 'Weight', value: '6.8 kg', editable: true, source: 'Manual' },
+    { id: '9', key: 'MPN', value: product.mpn, editable: false, source: 'Auto-Detected' }
   ]);
   const [history, setHistory] = useState<typeof specs[]>([]);
+  const [expandedSourceIndex, setExpandedSourceIndex] = useState<number | null>(null);
 
   const addRow = () => {
     setHistory(prev => [...prev, [...specs]]);
     const newId = `spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setSpecs(prev => [...prev, { id: newId, key: '', value: '', editable: true }]);
+    setSpecs(prev => [...prev, { id: newId, key: '', value: '', editable: true, source: 'Not set' }]);
   };
 
   const removeRow = (index: number) => {
@@ -745,6 +785,12 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const updateSpec = (index: number, field: 'key' | 'value', value: string) => {
     setSpecs(prev => prev.map((spec, i) => 
       i === index ? { ...spec, [field]: value } : spec
+    ));
+  };
+
+  const updateSpecSource = (index: number, source: string) => {
+    setSpecs(prev => prev.map((spec, i) => 
+      i === index ? { ...spec, source } : spec
     ));
   };
 
@@ -798,7 +844,10 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
                   index={index}
                   moveRow={moveRow}
                   updateSpec={updateSpec}
+                  updateSpecSource={updateSpecSource}
                   removeRow={removeRow}
+                  expandedSourceIndex={expandedSourceIndex}
+                  setExpandedSourceIndex={setExpandedSourceIndex}
                 />
               ))}
             </TableBody>
