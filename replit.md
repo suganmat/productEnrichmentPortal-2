@@ -27,6 +27,15 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
   - Built-in chat support simulation for AI product assistance.
   - User tracking with "Last modified by" field for all product changes.
 
+- **Hierarchical Attributes & Details Settings Module**
+  - Browse 18 parent categories with 8-10 subcategories each
+  - Support for 5-level deep category hierarchy (drill-down navigation)
+  - View 5 sample attributes for each leaf category with descriptions
+  - Internal configuration page for editing attributes and key features
+  - Back navigation between main view and configuration page
+  - Toast notifications for successful saves
+  - Last modified timestamp tracking for audit trail
+
 - **Single Sign-On (SSO) Authentication**
   - Seamless session management using Replit Auth for secure and smooth login.
 
@@ -44,6 +53,7 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 - Category Mapping (AI-driven)
 - Product Variant Grouping (Drag-and-drop)
 - Product Enrichment (End-to-end SKU management)
+- Attributes & Details Settings (Hierarchical management with configuration page)
 
 > *For a demo preview, consider adding a Loom or YouTube walkthrough of key workflows (drag-and-drop grouping, AI suggestions, rich enrichment dashboard view).*
 
@@ -57,14 +67,14 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 - **Backend:** Express/TypeScript + Drizzle ORM
 - **Authentication:** SSO (Replit Auth)
 - **Database:** PostgreSQL
-- **Modules:** Category Mapping, Variant Grouping, SKU Enrichment
+- **Modules:** Category Mapping, Variant Grouping, SKU Enrichment, Attributes & Details Settings
 
 ---
 
 ## 🦄 Why Is This Different? (Recruiter Value)
 
 - *Intelligent enrichment*: ML-driven logic for category mapping and clustering.
-- *Modern UX*: Drag-and-drop, table filtering, embedded chat support.
+- *Modern UX*: Drag-and-drop, table filtering, embedded chat support, hierarchical category management.
 - *Enterprise-ready*: Secure SSO, scalable modular design, API-first backend.
 - *Rich extensibility*: Easy to add new enrichment modules, integrate external ML, and expand product data models.
 - *Live data validation*: Zod validation and Drizzle ORM use for data integrity.
@@ -89,5 +99,19 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 3. **Map categories with AI assistance**
 4. **Group variants using drag-and-drop**
 5. **Enrich SKUs powered by LLM with great product information**
+6. **Configure category-specific attributes and features** (Hierarchical management)
+
+---
+
+## 🎯 Recent Changes (December 2025)
+
+- **v1.0 - Attributes & Details Settings Module**
+  - 18 parent categories with up to 10 subcategories each
+  - 5-level deep hierarchical navigation (drill-down)
+  - 5 sample attributes per leaf category
+  - Configuration page with back button for editing
+  - Toast notifications for successful saves
+  - Last modified timestamp display for audit trail
+  - Category-specific attribute templates (Phones, Fashion, Furniture, etc.)
 
 ---

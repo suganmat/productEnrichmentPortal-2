@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronRight, Plus, Save, Trash2, GripVertical, X, Edit2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, Plus, Save, Trash2, GripVertical, ArrowLeft, Edit2, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 interface ParentCategory {
   id: number;
@@ -34,10 +35,12 @@ interface SampleAttribute {
 }
 
 export function AttributesDetailsSettings() {
+  const { toast } = useToast();
   const [selectedParent, setSelectedParent] = useState<ParentCategory | null>(null);
   const [expandedSubCategories, setExpandedSubCategories] = useState<Set<number>>(new Set());
   const [selectedLeafCategory, setSelectedLeafCategory] = useState<SubCategory | null>(null);
   const [isConfiguring, setIsConfiguring] = useState(false);
+  const [lastModified, setLastModified] = useState<string>("");
   const [attributes, setAttributes] = useState<Attribute[]>([
     { id: 1, name: "Color", description: "Product color options", sequence: 1 },
     { id: 2, name: "Size", description: "Available sizes", sequence: 2 },
@@ -45,6 +48,28 @@ export function AttributesDetailsSettings() {
   ]);
   const [keyFeaturesFormat, setKeyFeaturesFormat] = useState("grid");
   const [keyFeaturesInstructions, setKeyFeaturesInstructions] = useState("Display up to 5 key features with icons");
+
+  const handleSaveAttributes = () => {
+    const now = new Date().toLocaleString();
+    setLastModified(now);
+    toast({
+      title: "Success!",
+      description: "Product attributes saved successfully",
+    });
+  };
+
+  const handleSaveFeatures = () => {
+    const now = new Date().toLocaleString();
+    setLastModified(now);
+    toast({
+      title: "Success!",
+      description: "Key features configuration saved successfully",
+    });
+  };
+
+  const handleBackToMain = () => {
+    setIsConfiguring(false);
+  };
 
   // Mock data - 18 parent categories with deep hierarchies
   const parentCategories: ParentCategory[] = [
@@ -431,155 +456,173 @@ export function AttributesDetailsSettings() {
         )}
       </div>
 
-      {/* Configuration Modal/Section */}
-      <AnimatePresence>
-        {isConfiguring && selectedLeafCategory && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            data-testid="config-modal"
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              className="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-auto"
-            >
-              {/* Modal Header */}
-              <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+      {/* Configuration Internal Page */}
+      {isConfiguring && selectedLeafCategory && (
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-6"
+        >
+          {/* Header with Back Button */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <motion.button
+                onClick={handleBackToMain}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 text-blue-600 font-medium hover:bg-blue-50"
+                whileHover={{ x: -4 }}
+                whileTap={{ scale: 0.95 }}
+                data-testid="back-button"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Back to Categories
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Configuration Content */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-bold">Configure Attributes & Features</h2>
-                  <p className="text-sm text-gray-600 mt-1">{selectedLeafCategory.name}</p>
+                  <CardTitle className="text-2xl">Configure Attributes & Features</CardTitle>
+                  <p className="text-sm text-gray-600 mt-2">{selectedLeafCategory.name}</p>
                 </div>
-                <motion.button
-                  onClick={() => setIsConfiguring(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  data-testid="close-modal"
-                >
-                  <X className="w-5 h-5" />
-                </motion.button>
+                {lastModified && (
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Last Modified</p>
+                    <p className="text-sm font-medium text-gray-700">{lastModified}</p>
+                  </div>
+                )}
               </div>
+            </CardHeader>
 
-              {/* Modal Content - Tabs */}
-              <div className="p-6">
-                <Tabs defaultValue="attributes" data-testid="config-tabs">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="attributes">Product Attributes</TabsTrigger>
-                    <TabsTrigger value="features">Key Features</TabsTrigger>
-                  </TabsList>
+            <CardContent>
+              <Tabs defaultValue="attributes" data-testid="config-tabs">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="attributes">Product Attributes</TabsTrigger>
+                  <TabsTrigger value="features">Key Features</TabsTrigger>
+                </TabsList>
 
-                  {/* Tab 1: Attributes */}
-                  <TabsContent value="attributes" className="space-y-4 mt-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-semibold">Edit Product Attributes</h3>
-                      <Button
-                        size="sm"
-                        onClick={addAttribute}
-                        data-testid="add-attribute"
+                {/* Tab 1: Attributes */}
+                <TabsContent value="attributes" className="space-y-4 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-semibold text-lg">Edit Product Attributes</h3>
+                    <Button
+                      size="sm"
+                      onClick={addAttribute}
+                      data-testid="add-attribute"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Attribute
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3 max-h-96 overflow-auto">
+                    {attributes.map((attr) => (
+                      <motion.div
+                        key={attr.id}
+                        className="border rounded-lg p-3 bg-white hover:shadow-md transition-shadow"
+                        layout
+                        data-testid={`attribute-${attr.id}`}
                       >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Attribute
-                      </Button>
-                    </div>
-
-                    <div className="space-y-3 max-h-96 overflow-auto">
-                      {attributes.map((attr) => (
-                        <motion.div
-                          key={attr.id}
-                          className="border rounded-lg p-3 bg-white hover:shadow-md transition-shadow"
-                          layout
-                          data-testid={`attribute-${attr.id}`}
-                        >
-                          <div className="flex items-start gap-2">
-                            <GripVertical className="w-4 h-4 mt-1 text-gray-400" />
-                            <div className="flex-1 space-y-2">
-                              <Input
-                                placeholder="Attribute name"
-                                value={attr.name}
-                                onChange={(e) => updateAttribute(attr.id, 'name', e.target.value)}
-                                className="text-sm"
-                                data-testid={`attr-name-${attr.id}`}
-                              />
-                              <Textarea
-                                placeholder="Description"
-                                value={attr.description}
-                                onChange={(e) => updateAttribute(attr.id, 'description', e.target.value)}
-                                className="text-sm resize-none"
-                                rows={2}
-                                data-testid={`attr-desc-${attr.id}`}
-                              />
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteAttribute(attr.id)}
-                              data-testid={`delete-attr-${attr.id}`}
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                            </Button>
+                        <div className="flex items-start gap-2">
+                          <GripVertical className="w-4 h-4 mt-1 text-gray-400" />
+                          <div className="flex-1 space-y-2">
+                            <Input
+                              placeholder="Attribute name"
+                              value={attr.name}
+                              onChange={(e) => updateAttribute(attr.id, 'name', e.target.value)}
+                              className="text-sm"
+                              data-testid={`attr-name-${attr.id}`}
+                            />
+                            <Textarea
+                              placeholder="Description"
+                              value={attr.description}
+                              onChange={(e) => updateAttribute(attr.id, 'description', e.target.value)}
+                              className="text-sm resize-none"
+                              rows={2}
+                              data-testid={`attr-desc-${attr.id}`}
+                            />
                           </div>
-                        </motion.div>
-                      ))}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteAttribute(attr.id)}
+                            data-testid={`delete-attr-${attr.id}`}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-end pt-4 border-t">
+                    <motion.button
+                      onClick={handleSaveAttributes}
+                      className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      data-testid="save-attributes"
+                    >
+                      <Check className="w-4 h-4" />
+                      Save Attributes
+                    </motion.button>
+                  </div>
+                </TabsContent>
+
+                {/* Tab 2: Key Features */}
+                <TabsContent value="features" className="space-y-4 mt-6">
+                  <h3 className="font-semibold text-lg">Key Features Configuration</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Display Format</label>
+                      <select
+                        value={keyFeaturesFormat}
+                        onChange={(e) => setKeyFeaturesFormat(e.target.value)}
+                        className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
+                        data-testid="features-format"
+                      >
+                        <option value="grid">Grid Layout</option>
+                        <option value="list">List Layout</option>
+                        <option value="carousel">Carousel Layout</option>
+                      </select>
                     </div>
 
-                    <div className="flex justify-end pt-4 border-t">
-                      <Button data-testid="save-attributes">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Attributes
-                      </Button>
+                    <div>
+                      <label className="text-sm font-medium">Instructions for End Users</label>
+                      <Textarea
+                        value={keyFeaturesInstructions}
+                        onChange={(e) => setKeyFeaturesInstructions(e.target.value)}
+                        placeholder="Describe how key features should be displayed..."
+                        rows={4}
+                        className="mt-1 text-sm"
+                        data-testid="features-instructions"
+                      />
                     </div>
-                  </TabsContent>
+                  </div>
 
-                  {/* Tab 2: Key Features */}
-                  <TabsContent value="features" className="space-y-4 mt-4">
-                    <h3 className="font-semibold">Key Features Configuration</h3>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium">Display Format</label>
-                        <select
-                          value={keyFeaturesFormat}
-                          onChange={(e) => setKeyFeaturesFormat(e.target.value)}
-                          className="w-full mt-1 px-3 py-2 border rounded-lg text-sm"
-                          data-testid="features-format"
-                        >
-                          <option value="grid">Grid Layout</option>
-                          <option value="list">List Layout</option>
-                          <option value="carousel">Carousel Layout</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium">Instructions for End Users</label>
-                        <Textarea
-                          value={keyFeaturesInstructions}
-                          onChange={(e) => setKeyFeaturesInstructions(e.target.value)}
-                          placeholder="Describe how key features should be displayed..."
-                          rows={4}
-                          className="mt-1 text-sm"
-                          data-testid="features-instructions"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end pt-4 border-t">
-                      <Button data-testid="save-features-config">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Configuration
-                      </Button>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  <div className="flex justify-end pt-4 border-t">
+                    <motion.button
+                      onClick={handleSaveFeatures}
+                      className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      data-testid="save-features-config"
+                    >
+                      <Check className="w-4 h-4" />
+                      Save Configuration
+                    </motion.button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </div>
   );
 }
