@@ -404,12 +404,12 @@ export function AttributesDetailsSettings() {
 
         {/* Middle: Sub Categories */}
         {selectedParent && (
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-base">Subcategories</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-1 max-h-96 overflow-auto">
+            <CardContent className="flex-1 overflow-auto">
+              <div className="space-y-1">
                 {renderSubCategoryTree(getSubCategories(selectedParent.id))}
               </div>
             </CardContent>
@@ -418,39 +418,37 @@ export function AttributesDetailsSettings() {
 
         {/* Right: Sample Attributes Display */}
         {selectedLeafCategory && (
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-base">{selectedLeafCategory.name}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-gray-600 font-semibold">Sample Attributes ({getSampleAttributes(selectedLeafCategory.id).length})</p>
-                
-                <div className="space-y-3 max-h-80 overflow-auto">
-                  {getSampleAttributes(selectedLeafCategory.id).map((attr) => (
-                    <motion.div
-                      key={attr.id}
-                      className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-transparent hover:shadow-md transition-shadow"
-                      whileHover={{ x: 4 }}
-                      data-testid={`sample-attr-${attr.id}`}
-                    >
-                      <div className="text-sm font-medium text-gray-900">{attr.name}</div>
-                      <div className="text-xs text-gray-600 mt-1">{attr.description}</div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <motion.button
-                  onClick={() => setIsConfiguring(true)}
-                  className="w-full mt-auto p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  data-testid="configure-leaf"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  Configure Attributes & Features
-                </motion.button>
+            <CardContent className="flex-1 flex flex-col overflow-hidden">
+              <p className="text-sm text-gray-600 font-semibold">Sample Attributes ({getSampleAttributes(selectedLeafCategory.id).length})</p>
+              
+              <div className="space-y-3 flex-1 overflow-auto my-4">
+                {getSampleAttributes(selectedLeafCategory.id).map((attr) => (
+                  <motion.div
+                    key={attr.id}
+                    className="border rounded-lg p-3 bg-gradient-to-r from-blue-50 to-transparent hover:shadow-md transition-shadow"
+                    whileHover={{ x: 4 }}
+                    data-testid={`sample-attr-${attr.id}`}
+                  >
+                    <div className="text-sm font-medium text-gray-900">{attr.name}</div>
+                    <div className="text-xs text-gray-600 mt-1">{attr.description}</div>
+                  </motion.div>
+                ))}
               </div>
+
+              <motion.button
+                onClick={() => setIsConfiguring(true)}
+                className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                data-testid="configure-leaf"
+              >
+                <Edit2 className="w-4 h-4" />
+                Configure Attributes & Features
+              </motion.button>
             </CardContent>
           </Card>
         )}
