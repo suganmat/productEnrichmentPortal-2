@@ -8,9 +8,11 @@ import { Brain, BarChart3, Package, ShoppingCart, Home } from "lucide-react";
 import { CategoryMappingTable } from "@/components/category-mapping-table";
 import { ProductGroupingTable } from "@/components/product-grouping-table";
 import { ProductEnrichmentTable } from "@/components/product-enrichment-table";
+import { AttributesDetailsSettings } from "@/components/attributes-details-settings";
 import { ProfileDropdown } from "@/components/profile-dropdown";
+import { Settings } from "lucide-react";
 
-type TabType = "categoryMapping" | "productGrouping" | "productEnrichment";
+type TabType = "categoryMapping" | "productGrouping" | "productEnrichment" | "attributesSettings";
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -20,7 +22,7 @@ export default function Dashboard() {
   useEffect(() => {
     const pathParts = location.split('/');
     const tabFromUrl = pathParts[2] as TabType;
-    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment', 'attributesSettings'].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [location]);
@@ -33,6 +35,8 @@ export default function Dashboard() {
         return "87%";
       case "productEnrichment":
         return "92%";
+      case "attributesSettings":
+        return "100%";
       default:
         return "94%";
     }
@@ -56,6 +60,12 @@ export default function Dashboard() {
       label: "Product Enrichment",
       icon: ShoppingCart,
       description: "Manage product SKUs"
+    },
+    {
+      id: "attributesSettings" as TabType,
+      label: "Attributes & Details Settings",
+      icon: Settings,
+      description: "Manage category attributes"
     }
   ];
 
@@ -67,6 +77,8 @@ export default function Dashboard() {
         return <ProductGroupingTable />;
       case "productEnrichment":
         return <ProductEnrichmentTable />;
+      case "attributesSettings":
+        return <AttributesDetailsSettings />;
       default:
         return <CategoryMappingTable />;
     }

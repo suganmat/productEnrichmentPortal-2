@@ -81,3 +81,36 @@ export const insertProductSKUSchema = createInsertSchema(productSKUs).omit({
 
 export type ProductSKU = typeof productSKUs.$inferSelect;
 export type InsertProductSKU = z.infer<typeof insertProductSKUSchema>;
+
+// Category hierarchy tables
+export const parentCategories = pgTable("parent_categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+});
+
+export const subCategories = pgTable("sub_categories", {
+  id: serial("id").primaryKey(),
+  parentId: integer("parent_id").notNull(),
+  name: text("name").notNull(),
+  parentCategoryId: integer("parent_category_id"),
+});
+
+export const productAttributes = pgTable("product_attributes", {
+  id: serial("id").primaryKey(),
+  subCategoryId: integer("sub_category_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  sequence: integer("sequence").notNull().default(0),
+});
+
+export const keyFeaturesConfig = pgTable("key_features_config", {
+  id: serial("id").primaryKey(),
+  subCategoryId: integer("sub_category_id").notNull(),
+  displayFormat: text("display_format"),
+  customInstructions: text("custom_instructions"),
+});
+
+export type ParentCategory = typeof parentCategories.$inferSelect;
+export type SubCategory = typeof subCategories.$inferSelect;
+export type ProductAttribute = typeof productAttributes.$inferSelect;
+export type KeyFeaturesConfig = typeof keyFeaturesConfig.$inferSelect;
