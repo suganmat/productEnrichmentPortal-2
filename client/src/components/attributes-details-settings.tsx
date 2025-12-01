@@ -422,10 +422,10 @@ export function AttributesDetailsSettings() {
             <CardHeader>
               <CardTitle className="text-base">{selectedLeafCategory.name}</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col overflow-hidden">
-              <p className="text-sm text-gray-600 font-semibold">Sample Attributes ({getSampleAttributes(selectedLeafCategory.id).length})</p>
+            <CardContent className="flex flex-col overflow-hidden">
+              <p className="text-sm text-gray-600 font-semibold mb-3">Sample Attributes ({getSampleAttributes(selectedLeafCategory.id).length})</p>
               
-              <div className="space-y-3 flex-1 overflow-auto my-4">
+              <div className="space-y-3 overflow-auto flex-1">
                 {getSampleAttributes(selectedLeafCategory.id).map((attr) => (
                   <motion.div
                     key={attr.id}
@@ -441,7 +441,7 @@ export function AttributesDetailsSettings() {
 
               <motion.button
                 onClick={() => setIsConfiguring(true)}
-                className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-4 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 data-testid="configure-leaf"
