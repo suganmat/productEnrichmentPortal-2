@@ -114,3 +114,16 @@ export type ParentCategory = typeof parentCategories.$inferSelect;
 export type SubCategory = typeof subCategories.$inferSelect;
 export type ProductAttribute = typeof productAttributes.$inferSelect;
 export type KeyFeaturesConfig = typeof keyFeaturesConfig.$inferSelect;
+
+// Team Member table for Access Control
+export const teamMembers = pgTable("team_members", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull().unique(),
+  name: varchar("name").notNull(),
+  role: varchar("role").notNull(), // 'admin', 'product_enrichment', 'product_grouping', 'category_mapping'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type TeamMember = typeof teamMembers.$inferSelect;
+export const insertTeamMemberSchema = createInsertSchema(teamMembers).omit({ id: true, createdAt: true });
+export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;

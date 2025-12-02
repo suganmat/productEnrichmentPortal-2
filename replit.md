@@ -54,6 +54,7 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 - Product Variant Grouping (Drag-and-drop)
 - Product Enrichment (End-to-end SKU management)
 - Attributes & Details Settings (Hierarchical management with configuration page)
+- Access Control (Team member management with role-based permissions)
 
 > *For a demo preview, consider adding a Loom or YouTube walkthrough of key workflows (drag-and-drop grouping, AI suggestions, rich enrichment dashboard view).*
 
@@ -67,7 +68,7 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 - **Backend:** Express/TypeScript + Drizzle ORM
 - **Authentication:** SSO (Replit Auth)
 - **Database:** PostgreSQL
-- **Modules:** Category Mapping, Variant Grouping, SKU Enrichment, Attributes & Details Settings
+- **Modules:** Category Mapping, Variant Grouping, SKU Enrichment, Attributes & Details Settings, Access Control
 
 ---
 
@@ -105,6 +106,15 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
 
 ## 🎯 Recent Changes (December 2025)
 
+- **v1.1 - Access Control Module**
+  - Team member management with email and role-based permissions
+  - Four access levels: Admin (all access), Product Enrichment, Product-Variant Grouping, Category Mapping
+  - Add/remove team members with form validation
+  - Display team member list with email and role badges
+  - Delete confirmation dialogs
+  - Real-time updates with TanStack Query
+  - Toast notifications for actions
+
 - **v1.0 - Attributes & Details Settings Module**
   - 18 parent categories with up to 10 subcategories each
   - 5-level deep hierarchical navigation (drill-down)
@@ -113,5 +123,7 @@ https://www.awesomescreenshot.com/video/44816333?key=bfb5fdb6fa8980017fd6d350491
   - Toast notifications for successful saves
   - Last modified timestamp display for audit trail
   - Category-specific attribute templates (Phones, Fashion, Furniture, etc.)
+  - Hidden dropdown for attribute sources (Manual, AI-Generated, Data Feed, Seller Provided, Auto-Detected)
+  - AI-Generated source links from web or uploaded files
 
 ---

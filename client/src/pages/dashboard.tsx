@@ -9,10 +9,11 @@ import { CategoryMappingTable } from "@/components/category-mapping-table";
 import { ProductGroupingTable } from "@/components/product-grouping-table";
 import { ProductEnrichmentTable } from "@/components/product-enrichment-table";
 import { AttributesDetailsSettings } from "@/components/attributes-details-settings";
+import { AccessControl } from "@/components/access-control";
 import { ProfileDropdown } from "@/components/profile-dropdown";
-import { Settings } from "lucide-react";
+import { Settings, Shield } from "lucide-react";
 
-type TabType = "categoryMapping" | "productGrouping" | "productEnrichment" | "attributesSettings";
+type TabType = "categoryMapping" | "productGrouping" | "productEnrichment" | "attributesSettings" | "accessControl";
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -22,7 +23,7 @@ export default function Dashboard() {
   useEffect(() => {
     const pathParts = location.split('/');
     const tabFromUrl = pathParts[2] as TabType;
-    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment', 'attributesSettings'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment', 'attributesSettings', 'accessControl'].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [location]);
@@ -36,6 +37,8 @@ export default function Dashboard() {
       case "productEnrichment":
         return "92%";
       case "attributesSettings":
+        return "100%";
+      case "accessControl":
         return "100%";
       default:
         return "94%";
@@ -66,6 +69,12 @@ export default function Dashboard() {
       label: "Attributes & Details Settings",
       icon: Settings,
       description: "Manage category attributes"
+    },
+    {
+      id: "accessControl" as TabType,
+      label: "Access Control",
+      icon: Shield,
+      description: "Team member access management"
     }
   ];
 
@@ -79,6 +88,8 @@ export default function Dashboard() {
         return <ProductEnrichmentTable />;
       case "attributesSettings":
         return <AttributesDetailsSettings />;
+      case "accessControl":
+        return <AccessControl />;
       default:
         return <CategoryMappingTable />;
     }

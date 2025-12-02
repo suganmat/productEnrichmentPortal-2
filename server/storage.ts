@@ -1,4 +1,4 @@
-import { users, type User, type UpsertUser, categoryMappings, type CategoryMapping, type InsertCategoryMapping, productVariants, type ProductVariant, type InsertProductVariant, productSKUs, type ProductSKU, type InsertProductSKU } from "@shared/schema";
+import { users, type User, type UpsertUser, categoryMappings, type CategoryMapping, type InsertCategoryMapping, productVariants, type ProductVariant, type InsertProductVariant, productSKUs, type ProductSKU, type InsertProductSKU, teamMembers, type TeamMember, type InsertTeamMember } from "@shared/schema";
 
 export interface IStorage {
   // User operations for Replit Auth
@@ -18,6 +18,11 @@ export interface IStorage {
   getProductSKUs(page?: number, limit?: number, sortBy?: string, sortOrder?: 'asc' | 'desc', filters?: { seller?: string; brand?: string; category?: string; status?: string; availableOnBrandWebsite?: string }): Promise<{ data: ProductSKU[], total: number }>;
   createProductSKU(productSKU: InsertProductSKU): Promise<ProductSKU>;
   updateProductSKU(id: number, updates: Partial<ProductSKU>): Promise<ProductSKU>;
+  
+  // Team member operations
+  getTeamMembers(): Promise<TeamMember[]>;
+  addTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  removeTeamMember(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -25,18 +30,22 @@ export class MemStorage implements IStorage {
   private categoryMappings: Map<number, CategoryMapping>;
   private productVariants: Map<number, ProductVariant>;
   private productSKUs: Map<number, ProductSKU>;
+  private teamMembers: Map<number, TeamMember>;
   private currentCategoryId: number;
   private currentProductId: number;
   private currentSKUId: number;
+  private currentTeamMemberId: number;
 
   constructor() {
     this.users = new Map();
     this.categoryMappings = new Map();
     this.productVariants = new Map();
     this.productSKUs = new Map();
+    this.teamMembers = new Map();
     this.currentCategoryId = 1;
     this.currentProductId = 1;
     this.currentSKUId = 1;
+    this.currentTeamMemberId = 1;
     
     this.initializeData();
   }
@@ -172,6 +181,19 @@ export class MemStorage implements IStorage {
     skuData.forEach(data => {
       const sku: ProductSKU = { ...data, id: this.currentSKUId++, dateUploaded: new Date() };
       this.productSKUs.set(sku.id, sku);
+    });
+
+    // Initialize team members with sample data
+    const teamData: Omit<TeamMember, 'id' | 'createdAt'>[] = [
+      { email: 'admin@company.com', name: 'Admin User', role: 'admin' },
+      { email: 'enrichment@company.com', name: 'Product Enrichment Team', role: 'product_enrichment' },
+      { email: 'grouping@company.com', name: 'Variant Grouping Team', role: 'product_grouping' },
+      { email: 'category@company.com', name: 'Category Mapping Team', role: 'category_mapping' }
+    ];
+
+    teamData.forEach(data => {
+      const member: TeamMember = { ...data, id: this.currentTeamMemberId++, createdAt: new Date() };
+      this.teamMembers.set(member.id, member);
     });
   }
 
@@ -348,6 +370,20 @@ export class MemStorage implements IStorage {
     const updated = { ...sku, ...updates };
     this.productSKUs.set(id, updated);
     return updated;
+  }
+
+  async getTeamMembers(): Promise<TeamMember[]> {
+    return Array.from(this.teamMembers.values());
+  }
+
+  async addTeamMember(memberData: InsertTeamMember): Promise<TeamMember> {
+    const member: TeamMember = { ...memberData, id: this.currentTeamMemberId++, createdAt: new Date() };
+    this.teamMembers.set(member.id, member);
+    return member;
+  }
+
+  async removeTeamMember(id: number): Promise<void> {
+    this.teamMembers.delete(id);
   }
 }
 

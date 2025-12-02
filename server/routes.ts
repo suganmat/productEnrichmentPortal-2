@@ -176,6 +176,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Team Members API
+  app.get("/api/team-members", isAuthenticated, async (req, res) => {
+    try {
+      const members = await storage.getTeamMembers();
+      res.json(members);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
+  app.post("/api/team-members", isAuthenticated, async (req, res) => {
+    try {
+      const memberSchema = z.object({
+        email: z.string().email(),
+        name: z.string().min(1),
+        role: z.enum(['admin', 'product_enrichment', 'product_grouping', 'category_mapping'])
+      });
+      
+      const validatedMember = memberSchema.parse(req.body);
+      const member = await storage.addTeamMember(validatedMember);
+      res.json(member);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to add team member" });
+    }
+  });
+
+  app.delete("/api/team-members/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID" });
+      }
+      
+      await storage.removeTeamMember(id);
+      res.json({ message: "Team member removed successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to remove team member" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
