@@ -1,3 +1,7 @@
 git add .
-git commit -m "Added enrichment portal"
-git push
+git init
+git init
+
+-- Git
+git add .
+git commit -m "Initial commit"
