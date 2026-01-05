@@ -185,10 +185,10 @@ export class MemStorage implements IStorage {
 
     // Initialize team members with sample data
     const teamData: Omit<TeamMember, 'id' | 'createdAt'>[] = [
-      { email: 'admin@company.com', name: 'Admin User', role: 'admin' },
-      { email: 'enrichment@company.com', name: 'Product Enrichment Team', role: 'product_enrichment' },
-      { email: 'grouping@company.com', name: 'Variant Grouping Team', role: 'product_grouping' },
-      { email: 'category@company.com', name: 'Category Mapping Team', role: 'category_mapping' }
+      { email: 'admin@company.com', name: 'Admin User', roles: ['admin'] },
+      { email: 'enrichment@company.com', name: 'Product Enrichment Team', roles: ['product_enrichment'] },
+      { email: 'grouping@company.com', name: 'Variant Grouping Team', roles: ['product_grouping'] },
+      { email: 'category@company.com', name: 'Category Mapping Team', roles: ['category_mapping'] }
     ];
 
     teamData.forEach(data => {
@@ -377,7 +377,12 @@ export class MemStorage implements IStorage {
   }
 
   async addTeamMember(memberData: InsertTeamMember): Promise<TeamMember> {
-    const member: TeamMember = { ...memberData, id: this.currentTeamMemberId++, createdAt: new Date() };
+    const member: TeamMember = { 
+      ...memberData, 
+      id: this.currentTeamMemberId++, 
+      createdAt: new Date(),
+      roles: memberData.roles as string[]
+    };
     this.teamMembers.set(member.id, member);
     return member;
   }

@@ -120,7 +120,7 @@ export const teamMembers = pgTable("team_members", {
   id: serial("id").primaryKey(),
   email: varchar("email").notNull().unique(),
   name: varchar("name").notNull(),
-  role: varchar("role").notNull(), // 'admin', 'product_enrichment', 'product_grouping', 'category_mapping'
+  roles: json("roles").$type<string[]>().notNull(), // array of 'admin', 'product_enrichment', 'product_grouping', 'category_mapping'
   createdAt: timestamp("created_at").defaultNow(),
 });
 

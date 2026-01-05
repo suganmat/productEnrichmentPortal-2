@@ -9,18 +9,10 @@ import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/dashboard/:tab?" component={Dashboard} />
-        </>
-      )}
+      <Route path="/" component={Dashboard} />
+      <Route path="/dashboard/:tab?" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
   );
