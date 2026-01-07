@@ -192,16 +192,16 @@ export function ProductEnrichmentTable() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-6 h-[800px]">
-            {/* Left Layout - Larger */}
-            <div className="flex-1">
+            {/* Left Layout - 80% */}
+            <div className="flex-[4]">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-                <TabsList className="grid w-full grid-cols-6" data-testid="product-detail-tabs">
-                  <TabsTrigger value="specs" data-testid="tab-specs">Product Specs</TabsTrigger>
-                  <TabsTrigger value="features" data-testid="tab-features">Key Features</TabsTrigger>
-                  <TabsTrigger value="faqs" data-testid="tab-faqs">FAQs</TabsTrigger>
-                  <TabsTrigger value="images" data-testid="tab-images">Images</TabsTrigger>
-                  <TabsTrigger value="html" data-testid="tab-html">HTML Assets</TabsTrigger>
-                  <TabsTrigger value="summary" data-testid="tab-summary">Summary</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3 gap-2 h-auto p-1 bg-gray-100" data-testid="product-detail-tabs">
+                  <TabsTrigger value="specs" data-testid="tab-specs" className="py-2">Product Specs</TabsTrigger>
+                  <TabsTrigger value="features" data-testid="tab-features" className="py-2">Key Features</TabsTrigger>
+                  <TabsTrigger value="faqs" data-testid="tab-faqs" className="py-2">FAQs</TabsTrigger>
+                  <TabsTrigger value="images" data-testid="tab-images" className="py-2">Images</TabsTrigger>
+                  <TabsTrigger value="html" data-testid="tab-html" className="py-2">HTML Assets</TabsTrigger>
+                  <TabsTrigger value="summary" data-testid="tab-summary" className="py-2">Summary</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="specs" className="h-full mt-4">
@@ -230,8 +230,8 @@ export function ProductEnrichmentTable() {
               </Tabs>
             </div>
             
-            {/* Right Layout - Smaller */}
-            <div className="w-80 border-l border-gray-200 pl-6">
+            {/* Right Layout - 20% */}
+            <div className="flex-1 border-l border-gray-200 pl-6">
               <div className="space-y-4 h-full flex flex-col">
                 {/* File Upload Button */}
                 <Button 
