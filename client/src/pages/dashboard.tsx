@@ -4,16 +4,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Brain, BarChart3, Package, ShoppingCart, Home } from "lucide-react";
+import { Brain, BarChart3, Package, ShoppingCart, Home, Settings as SettingsIcon, Shield } from "lucide-react";
 import { CategoryMappingTable } from "@/components/category-mapping-table";
 import { ProductGroupingTable } from "@/components/product-grouping-table";
 import { ProductEnrichmentTable } from "@/components/product-enrichment-table";
-import { AttributesDetailsSettings } from "@/components/attributes-details-settings";
+import { SettingsModule } from "@/components/settings-module";
 import { AccessControl } from "@/components/access-control";
 import { ProfileDropdown } from "@/components/profile-dropdown";
-import { Settings, Shield } from "lucide-react";
 
-type TabType = "categoryMapping" | "productGrouping" | "productEnrichment" | "attributesSettings" | "accessControl";
+type TabType = "categoryMapping" | "productGrouping" | "productEnrichment" | "settings" | "accessControl";
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -23,7 +22,7 @@ export default function Dashboard() {
   useEffect(() => {
     const pathParts = location.split('/');
     const tabFromUrl = pathParts[2] as TabType;
-    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment', 'attributesSettings', 'accessControl'].includes(tabFromUrl)) {
+    if (tabFromUrl && ['categoryMapping', 'productGrouping', 'productEnrichment', 'settings', 'accessControl'].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [location]);
@@ -36,7 +35,7 @@ export default function Dashboard() {
         return "87%";
       case "productEnrichment":
         return "92%";
-      case "attributesSettings":
+      case "settings":
         return "100%";
       case "accessControl":
         return "100%";
@@ -65,10 +64,10 @@ export default function Dashboard() {
       description: "Manage product SKUs"
     },
     {
-      id: "attributesSettings" as TabType,
-      label: "Attributes & Details Settings",
-      icon: Settings,
-      description: "Manage category attributes"
+      id: "settings" as TabType,
+      label: "Settings",
+      icon: SettingsIcon,
+      description: "Manage platform settings"
     },
     {
       id: "accessControl" as TabType,
@@ -86,8 +85,8 @@ export default function Dashboard() {
         return <ProductGroupingTable />;
       case "productEnrichment":
         return <ProductEnrichmentTable />;
-      case "attributesSettings":
-        return <AttributesDetailsSettings />;
+      case "settings":
+        return <SettingsModule />;
       case "accessControl":
         return <AccessControl />;
       default:
