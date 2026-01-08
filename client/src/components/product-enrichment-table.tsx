@@ -10,13 +10,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, GripVertical, FileText, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, ArrowLeft, Upload, MessageCircle, Plus, Undo, Save, RotateCcw, X, GripVertical, FileText, Trash2, Globe } from "lucide-react";
 import { format } from "date-fns";
 import type { ProductSKU } from "@shared/schema";
 import { UploadDialog } from "@/components/upload-dialog";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProductSKUResponse {
   data: ProductSKU[];
@@ -628,8 +630,23 @@ interface DraggableSpecRowProps {
   setExpandedLinksIndex: (index: number | null) => void;
 }
 
+// Competitor percentages helper
+const getCompetitorMatches = (id: string) => {
+  // Deterministic but random-looking percentages based on ID
+  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return [
+    { name: "Amazon UK", percentage: (hash % 41) + 55 }, // 55-95%
+    { name: "Tesco UK", percentage: (hash % 31) + 40 }, // 40-70%
+    { name: "Currys UK", percentage: (hash % 21) + 65 }, // 65-85%
+    { name: "John Lewis UK", percentage: (hash % 51) + 35 }, // 35-85%
+    { name: "Argos UK", percentage: (hash % 11) + 85 }, // 85-95%
+  ];
+};
+
 function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex, uploadedFiles, expandedLinksIndex, setExpandedLinksIndex }: DraggableSpecRowProps) {
   const ref = useRef<HTMLTableRowElement>(null);
+  const competitorMatches = getCompetitorMatches(spec.id);
+  const avgMatch = Math.round(competitorMatches.reduce((acc, curr) => acc + curr.percentage, 0) / competitorMatches.length);
 
   const [{ isDragging }, drag] = useDrag({
     type: 'SPEC_ROW',
@@ -790,6 +807,48 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
         />
       </TableCell>
       <TableCell>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div 
+                className={cn(
+                  "font-bold text-sm cursor-help transition-colors",
+                  avgMatch >= 50 ? "text-green-600 hover:text-green-700" : "text-red-600 hover:text-red-700"
+                )}
+                data-testid={`match-percentage-${index}`}
+              >
+                {avgMatch}%
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="w-64 p-0 overflow-hidden shadow-2xl border-none">
+              <div className="bg-blue-600 p-2.5 text-white font-semibold text-xs flex justify-between items-center">
+                <span>Competitor Match Scores</span>
+                <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{spec.key}</span>
+              </div>
+              <div className="p-1.5 bg-white space-y-1">
+                {competitorMatches.map((match, mIdx) => (
+                  <div key={mIdx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors group">
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full transition-transform group-hover:scale-125",
+                        match.percentage >= 50 ? "bg-green-500" : "bg-red-500"
+                      )} />
+                      <span className="text-xs text-gray-700 font-medium">{match.name}</span>
+                    </div>
+                    <span className={cn(
+                      "text-xs font-bold",
+                      match.percentage >= 50 ? "text-green-600" : "text-red-600"
+                    )}>
+                      {match.percentage}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </TableCell>
+      <TableCell>
         <Button 
           variant="ghost" 
           size="sm" 
@@ -882,6 +941,7 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
                 <TableHead className="w-12"></TableHead>
                 <TableHead>Product Attribute</TableHead>
                 <TableHead>Detail</TableHead>
+                <TableHead>Match with competitors</TableHead>
                 <TableHead className="w-20">Actions</TableHead>
               </TableRow>
             </TableHeader>
