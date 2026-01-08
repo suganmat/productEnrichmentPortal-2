@@ -882,7 +882,7 @@ function ProductSpecsSection({ product }: { product: ProductSKU }) {
   const addRow = () => {
     setHistory(prev => [...prev, [...specs]]);
     const newId = `spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setSpecs(prev => [...prev, { id: newId, key: '', value: '', editable: true, source: 'Not set' }]);
+    setSpecs(prev => [...prev, { id: newId, key: '', value: '', editable: true, source: 'Not set', sourceLinks: [] }]);
   };
 
   const removeRow = (index: number) => {
