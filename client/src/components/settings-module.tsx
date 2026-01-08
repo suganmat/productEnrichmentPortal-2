@@ -15,8 +15,11 @@ interface Competitor {
 
 export function SettingsModule() {
   const [competitors, setCompetitors] = useState<Competitor[]>([
-    { id: "1", name: "Competitor A", url: "https://competitor-a.com" },
-    { id: "2", name: "Competitor B", url: "https://competitor-b.com" }
+    { id: "1", name: "Amazon UK", url: "https://www.amazon.co.uk" },
+    { id: "2", name: "Tesco UK", url: "https://www.tesco.com" },
+    { id: "3", name: "Currys UK", url: "https://www.currys.co.uk" },
+    { id: "4", name: "John Lewis UK", url: "https://www.johnlewis.com" },
+    { id: "5", name: "Argos UK", url: "https://www.argos.co.uk" }
   ]);
 
   const addCompetitor = () => {
