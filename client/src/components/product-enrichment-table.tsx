@@ -837,7 +837,7 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
             <TooltipTrigger asChild>
               <div 
                 className={cn(
-                  "font-bold text-sm cursor-help transition-colors py-1 px-2 rounded-md hover:bg-gray-100",
+                  "font-bold text-sm cursor-help transition-colors py-1 px-2 rounded-md hover:bg-gray-100 inline-flex items-center justify-center min-w-[3rem]",
                   avgMatch >= 50 ? "text-green-600" : "text-red-600"
                 )}
                 data-testid={`match-percentage-${index}`}
@@ -846,10 +846,10 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
               </div>
             </TooltipTrigger>
             <TooltipContent 
-              side="left" 
-              sideOffset={5}
+              side="top" 
               align="center"
-              className="w-[450px] p-0 overflow-hidden shadow-2xl border border-gray-200 z-[100]"
+              sideOffset={10}
+              className="w-[450px] p-0 overflow-hidden shadow-2xl border border-gray-200 z-[100] bg-white"
             >
               <div className="bg-slate-900 p-3 text-white">
                 <div className="flex justify-between items-center">
