@@ -631,21 +631,31 @@ interface DraggableSpecRowProps {
 }
 
 // Competitor percentages helper
-const getCompetitorMatches = (id: string) => {
-  // Deterministic but random-looking percentages based on ID
-  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+const getCompetitorMatches = (specKey: string, specValue: string) => {
+  const competitorValues: Record<string, string[]> = {
+    'Brand': ['Samsung', 'Samsung', 'Samsung Electronics', 'Samsung UK', 'Samsung'],
+    'Type': ['QLED', 'OLED', 'LED TV', 'QLED 4K', 'LED'],
+    'Screen Size': ['27"', '27 inch', '27.0"', '68.5cm', '27-inch'],
+    'Display Features': ['4K UHD', '3840x2160', 'Ultra HD 4K', '4K Ultra HD', '3840 x 2160'],
+    'Ports': ['2x HDMI', 'HDMI x 2', '2 HDMI ports', 'HDMI 2.0 x 2', '2x HDMI 2.1'],
+    'Weight': ['6.5kg', '6.8kg', '7kg', '6.8 kg', '6.7kg'],
+  };
+
+  const defaults = ["N/A", "Not found", "Check site", "Unavailable", "Mismatch"];
+  const values = competitorValues[specKey] || defaults;
+  
   return [
-    { name: "Amazon UK", percentage: (hash % 41) + 55 }, // 55-95%
-    { name: "Tesco UK", percentage: (hash % 31) + 40 }, // 40-70%
-    { name: "Currys UK", percentage: (hash % 21) + 65 }, // 65-85%
-    { name: "John Lewis UK", percentage: (hash % 51) + 35 }, // 35-85%
-    { name: "Argos UK", percentage: (hash % 11) + 85 }, // 85-95%
+    { name: "Amazon UK", value: values[0], percentage: 85 },
+    { name: "Tesco UK", percentage: 45, value: values[1] },
+    { name: "Currys UK", percentage: 75, value: values[2] },
+    { name: "John Lewis UK", percentage: 92, value: values[3] },
+    { name: "Argos UK", percentage: 88, value: values[4] },
   ];
 };
 
 function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex, uploadedFiles, expandedLinksIndex, setExpandedLinksIndex }: DraggableSpecRowProps) {
   const ref = useRef<HTMLTableRowElement>(null);
-  const competitorMatches = getCompetitorMatches(spec.id);
+  const competitorMatches = getCompetitorMatches(spec.key, spec.value);
   const avgMatch = Math.round(competitorMatches.reduce((acc, curr) => acc + curr.percentage, 0) / competitorMatches.length);
 
   const [{ isDragging }, drag] = useDrag({
@@ -820,27 +830,37 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
                 {avgMatch}%
               </div>
             </TooltipTrigger>
-            <TooltipContent className="w-64 p-0 overflow-hidden shadow-2xl border-none">
-              <div className="bg-blue-600 p-2.5 text-white font-semibold text-xs flex justify-between items-center">
-                <span>Competitor Match Scores</span>
-                <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{spec.key}</span>
+            <TooltipContent side="right" className="w-80 p-0 overflow-hidden shadow-2xl border-none">
+              <div className="bg-blue-600 p-3 text-white">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-bold text-sm">Competitor Comparison</span>
+                  <Badge variant="outline" className="text-white border-white/30 bg-white/10 text-[10px]">
+                    {spec.key}
+                  </Badge>
+                </div>
+                <p className="text-[10px] text-blue-100 italic opacity-80">Hover scores to see live competitor values</p>
               </div>
-              <div className="p-1.5 bg-white space-y-1">
+              <div className="p-2 bg-white divide-y divide-gray-50">
                 {competitorMatches.map((match, mIdx) => (
                   <div key={mIdx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded transition-colors group">
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-1.5 h-1.5 rounded-full transition-transform group-hover:scale-125",
-                        match.percentage >= 50 ? "bg-green-500" : "bg-red-500"
-                      )} />
-                      <span className="text-xs text-gray-700 font-medium">{match.name}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <div className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          match.percentage >= 50 ? "bg-green-500" : "bg-red-500"
+                        )} />
+                        <span className="text-xs text-gray-900 font-semibold">{match.name}</span>
+                      </div>
+                      <div className="text-[10px] text-gray-500 truncate ml-3.5 italic">
+                        Value: "{match.value}"
+                      </div>
                     </div>
-                    <span className={cn(
-                      "text-xs font-bold",
+                    <div className={cn(
+                      "text-xs font-bold px-2 py-1 rounded bg-gray-50",
                       match.percentage >= 50 ? "text-green-600" : "text-red-600"
                     )}>
                       {match.percentage}%
-                    </span>
+                    </div>
                   </div>
                 ))}
               </div>
