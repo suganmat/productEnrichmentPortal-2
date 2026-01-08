@@ -847,8 +847,9 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
             </TooltipTrigger>
             <TooltipContent 
               side="right" 
-              sideOffset={5}
-              className="w-[450px] p-0 overflow-hidden shadow-2xl border border-gray-200"
+              sideOffset={-40}
+              align="center"
+              className="w-[450px] p-0 overflow-hidden shadow-2xl border border-gray-200 z-50"
             >
               <div className="bg-slate-900 p-3 text-white">
                 <div className="flex justify-between items-center">
