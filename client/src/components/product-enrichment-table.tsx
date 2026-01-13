@@ -846,47 +846,35 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
           </div>
 
           {showMatchPopup && (
-            <>
-              <div 
-                className="fixed inset-0 z-[90]" 
-                onClick={() => setShowMatchPopup(false)} 
-              />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[450px] bg-white rounded-lg shadow-2xl border border-gray-200 z-[100] overflow-hidden">
-                <div className="bg-slate-900 p-3 text-white flex justify-between items-center">
+            <Dialog open={showMatchPopup} onOpenChange={setShowMatchPopup}>
+              <DialogContent className="max-w-[500px] p-0 overflow-hidden border-none shadow-2xl">
+                <div className="bg-slate-900 p-4 text-white flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm">Competitor Match Audit</span>
-                    <Badge variant="outline" className="text-white border-white/30 bg-white/10 text-[10px]">
+                    <span className="font-bold text-lg">Competitor Match Audit</span>
+                    <Badge variant="outline" className="text-white border-white/30 bg-white/10">
                       {spec.key}
                     </Badge>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 w-6 p-0 text-white hover:bg-white/10"
-                    onClick={() => setShowMatchPopup(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
-                <div className="bg-white">
+                <div className="bg-white p-2">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-100">
-                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Competitor</th>
-                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Value</th>
-                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Match</th>
+                        <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Competitor</th>
+                        <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Value</th>
+                        <th className="px-4 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Match</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {competitors.map((c, idx) => (
                         <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                          <td className="px-4 py-2 text-xs font-semibold text-gray-700">{c.name}</td>
-                          <td className="px-4 py-2 text-xs text-gray-600 italic">"{c.value}"</td>
-                          <td className="px-4 py-2 text-center">
+                          <td className="px-4 py-3 text-sm font-semibold text-gray-700">{c.name}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 italic">"{c.value}"</td>
+                          <td className="px-4 py-3 text-center">
                             {c.matches ? (
-                              <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100 text-[10px] font-bold px-2 py-0">Yes</Badge>
+                              <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100 font-bold">Yes</Badge>
                             ) : (
-                              <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 text-[10px] font-bold px-2 py-0">No</Badge>
+                              <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 font-bold">No</Badge>
                             )}
                           </td>
                         </tr>
@@ -894,14 +882,14 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
                     </tbody>
                     <tfoot>
                       <tr className="bg-gray-50 font-bold border-t border-gray-100">
-                        <td colSpan={2} className="px-4 py-2 text-xs text-right text-gray-500">Overall Score:</td>
-                        <td className="px-4 py-2 text-center text-xs text-blue-600">{avgMatch}%</td>
+                        <td colSpan={2} className="px-4 py-3 text-sm text-right text-gray-500">Overall Score:</td>
+                        <td className="px-4 py-3 text-center text-sm text-blue-600 font-black">{avgMatch}%</td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
-              </div>
-            </>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
       </TableCell>
