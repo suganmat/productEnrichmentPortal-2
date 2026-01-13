@@ -671,6 +671,7 @@ const getCompetitorMatches = (specKey: string, specValue: string) => {
 
 function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, removeRow, expandedSourceIndex, setExpandedSourceIndex, uploadedFiles, expandedLinksIndex, setExpandedLinksIndex }: DraggableSpecRowProps) {
   const ref = useRef<HTMLTableRowElement>(null);
+  const [showMatchPopup, setShowMatchPopup] = useState(false);
   const { competitors, percentage: avgMatch } = getCompetitorMatches(spec.key, spec.value);
 
   const [{ isDragging }, drag] = useDrag({
@@ -832,68 +833,77 @@ function DraggableSpecRow({ spec, index, moveRow, updateSpec, updateSpecSource, 
         />
       </TableCell>
       <TableCell>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
+        <div className="relative">
+          <div 
+            onClick={() => setShowMatchPopup(!showMatchPopup)}
+            className={cn(
+              "font-bold text-sm cursor-pointer transition-colors py-1 px-2 rounded-md hover:bg-gray-100 inline-flex items-center justify-center min-w-[3rem]",
+              avgMatch >= 50 ? "text-green-600" : "text-red-600"
+            )}
+            data-testid={`match-percentage-${index}`}
+          >
+            {avgMatch}%
+          </div>
+
+          {showMatchPopup && (
+            <>
               <div 
-                className={cn(
-                  "font-bold text-sm cursor-help transition-colors py-1 px-2 rounded-md hover:bg-gray-100 inline-flex items-center justify-center min-w-[3rem]",
-                  avgMatch >= 50 ? "text-green-600" : "text-red-600"
-                )}
-                data-testid={`match-percentage-${index}`}
-              >
-                {avgMatch}%
-              </div>
-            </TooltipTrigger>
-            <TooltipContent 
-              side="top" 
-              align="center"
-              sideOffset={10}
-              className="w-[450px] p-0 overflow-hidden shadow-2xl border border-gray-200 z-[100] bg-white"
-            >
-              <div className="bg-slate-900 p-3 text-white">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-sm">Competitor Match Audit</span>
-                  <Badge variant="outline" className="text-white border-white/30 bg-white/10 text-[10px]">
-                    {spec.key}
-                  </Badge>
+                className="fixed inset-0 z-[90]" 
+                onClick={() => setShowMatchPopup(false)} 
+              />
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[450px] bg-white rounded-lg shadow-2xl border border-gray-200 z-[100] overflow-hidden">
+                <div className="bg-slate-900 p-3 text-white flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm">Competitor Match Audit</span>
+                    <Badge variant="outline" className="text-white border-white/30 bg-white/10 text-[10px]">
+                      {spec.key}
+                    </Badge>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0 text-white hover:bg-white/10"
+                    onClick={() => setShowMatchPopup(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="bg-white">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-100">
+                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Competitor</th>
+                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Value</th>
+                        <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Match</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {competitors.map((c, idx) => (
+                        <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
+                          <td className="px-4 py-2 text-xs font-semibold text-gray-700">{c.name}</td>
+                          <td className="px-4 py-2 text-xs text-gray-600 italic">"{c.value}"</td>
+                          <td className="px-4 py-2 text-center">
+                            {c.matches ? (
+                              <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100 text-[10px] font-bold px-2 py-0">Yes</Badge>
+                            ) : (
+                              <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 text-[10px] font-bold px-2 py-0">No</Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-gray-50 font-bold border-t border-gray-100">
+                        <td colSpan={2} className="px-4 py-2 text-xs text-right text-gray-500">Overall Score:</td>
+                        <td className="px-4 py-2 text-center text-xs text-blue-600">{avgMatch}%</td>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
               </div>
-              <div className="bg-white">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50 border-b border-gray-100">
-                      <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Competitor</th>
-                      <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Value</th>
-                      <th className="px-4 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Match</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {competitors.map((c, idx) => (
-                      <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                        <td className="px-4 py-2 text-xs font-semibold text-gray-700">{c.name}</td>
-                        <td className="px-4 py-2 text-xs text-gray-600 italic">"{c.value}"</td>
-                        <td className="px-4 py-2 text-center">
-                          {c.matches ? (
-                            <Badge className="bg-green-100 text-green-700 border-green-200 hover:bg-green-100 text-[10px] font-bold px-2 py-0">Yes</Badge>
-                          ) : (
-                            <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 text-[10px] font-bold px-2 py-0">No</Badge>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-gray-50 font-bold border-t border-gray-100">
-                      <td colSpan={2} className="px-4 py-2 text-xs text-right text-gray-500">Overall Score:</td>
-                      <td className="px-4 py-2 text-center text-xs text-blue-600">{avgMatch}%</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            </>
+          )}
+        </div>
       </TableCell>
       <TableCell>
         <Button 
